@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/zangster300/northstar/web/pages"
+	"github.com/panoptical-cloud/uptime-roray/web/pages"
 )
 
 func setupSortableRoute(router chi.Router) error {

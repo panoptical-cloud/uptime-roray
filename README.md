@@ -13,7 +13,7 @@
 1. Clone this repository
 
 ```shell
-git clone https://github.com/zangster300/northstar.git
+git clone https://github.com/panoptical-cloud/uptime-roray.git
 ```
 
 2. Install Dependencies

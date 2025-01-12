@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/zangster300/northstar/routes"
+	"github.com/panoptical-cloud/uptime-roray/routes"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,7 +22,7 @@ func main() {
 		if p, ok := os.LookupEnv("PORT"); ok {
 			return p
 		}
-		return "8080"
+		return "8181"
 	}
 	logger.Info(fmt.Sprintf("Starting Server 0.0.0.0:" + getPort()))
 	defer logger.Info("Stopping Server")
