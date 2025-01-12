@@ -1,4 +1,4 @@
-module github.com/zangster300/northstar
+module github.com/panoptical-cloud/uptime-roray
 
 go 1.23.3
 
