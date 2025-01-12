@@ -22,7 +22,7 @@ func main() {
 		if p, ok := os.LookupEnv("PORT"); ok {
 			return p
 		}
-		return "8080"
+		return "8181"
 	}
 	logger.Info(fmt.Sprintf("Starting Server 0.0.0.0:" + getPort()))
 	defer logger.Info("Stopping Server")
