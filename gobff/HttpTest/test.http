@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:9191
+
+### GET /api/v1/server-port
+GET {{baseUrl}}/api/v1/server-port
+Content-Type: application/json
+
+{
+    "port": 3001,
+    "server_id": "1.1.1.1"
+}
