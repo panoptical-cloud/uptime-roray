@@ -13,7 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as UrlsIndexImport } from './routes/urls/index'
+import { Route as ServersIndexImport } from './routes/servers/index'
 import { Route as ServerPortIndexImport } from './routes/server-port/index'
+import { Route as PortsIndexImport } from './routes/ports/index'
 import { Route as ServerPortStatusImport } from './routes/server-port/status'
 import { Route as ServerPortFormImport } from './routes/server-port/form'
 
@@ -31,9 +34,27 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const UrlsIndexRoute = UrlsIndexImport.update({
+  id: '/urls/',
+  path: '/urls/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ServersIndexRoute = ServersIndexImport.update({
+  id: '/servers/',
+  path: '/servers/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ServerPortIndexRoute = ServerPortIndexImport.update({
   id: '/server-port/',
   path: '/server-port/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PortsIndexRoute = PortsIndexImport.update({
+  id: '/ports/',
+  path: '/ports/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,11 +102,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerPortStatusImport
       parentRoute: typeof rootRoute
     }
+    '/ports/': {
+      id: '/ports/'
+      path: '/ports'
+      fullPath: '/ports'
+      preLoaderRoute: typeof PortsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/server-port/': {
       id: '/server-port/'
       path: '/server-port'
       fullPath: '/server-port'
       preLoaderRoute: typeof ServerPortIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/servers/': {
+      id: '/servers/'
+      path: '/servers'
+      fullPath: '/servers'
+      preLoaderRoute: typeof ServersIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/urls/': {
+      id: '/urls/'
+      path: '/urls'
+      fullPath: '/urls'
+      preLoaderRoute: typeof UrlsIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -98,7 +140,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
+  '/ports': typeof PortsIndexRoute
   '/server-port': typeof ServerPortIndexRoute
+  '/servers': typeof ServersIndexRoute
+  '/urls': typeof UrlsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -106,7 +151,10 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
+  '/ports': typeof PortsIndexRoute
   '/server-port': typeof ServerPortIndexRoute
+  '/servers': typeof ServersIndexRoute
+  '/urls': typeof UrlsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -115,7 +163,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
+  '/ports/': typeof PortsIndexRoute
   '/server-port/': typeof ServerPortIndexRoute
+  '/servers/': typeof ServersIndexRoute
+  '/urls/': typeof UrlsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -125,21 +176,30 @@ export interface FileRouteTypes {
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
+    | '/ports'
     | '/server-port'
+    | '/servers'
+    | '/urls'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
+    | '/ports'
     | '/server-port'
+    | '/servers'
+    | '/urls'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
+    | '/ports/'
     | '/server-port/'
+    | '/servers/'
+    | '/urls/'
   fileRoutesById: FileRoutesById
 }
 
@@ -148,7 +208,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ServerPortFormRoute: typeof ServerPortFormRoute
   ServerPortStatusRoute: typeof ServerPortStatusRoute
+  PortsIndexRoute: typeof PortsIndexRoute
   ServerPortIndexRoute: typeof ServerPortIndexRoute
+  ServersIndexRoute: typeof ServersIndexRoute
+  UrlsIndexRoute: typeof UrlsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -156,7 +219,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ServerPortFormRoute: ServerPortFormRoute,
   ServerPortStatusRoute: ServerPortStatusRoute,
+  PortsIndexRoute: PortsIndexRoute,
   ServerPortIndexRoute: ServerPortIndexRoute,
+  ServersIndexRoute: ServersIndexRoute,
+  UrlsIndexRoute: UrlsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -173,7 +239,10 @@ export const routeTree = rootRoute
         "/about",
         "/server-port/form",
         "/server-port/status",
-        "/server-port/"
+        "/ports/",
+        "/server-port/",
+        "/servers/",
+        "/urls/"
       ]
     },
     "/": {
@@ -188,8 +257,17 @@ export const routeTree = rootRoute
     "/server-port/status": {
       "filePath": "server-port/status.tsx"
     },
+    "/ports/": {
+      "filePath": "ports/index.tsx"
+    },
     "/server-port/": {
       "filePath": "server-port/index.tsx"
+    },
+    "/servers/": {
+      "filePath": "servers/index.tsx"
+    },
+    "/urls/": {
+      "filePath": "urls/index.tsx"
     }
   }
 }

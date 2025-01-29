@@ -17,15 +17,27 @@ function RootComponent() {
           }}
           activeOptions={{ exact: true }}
         >
-          Home
+          Dashboard
         </Link>{' '}
         <Link
-          to="/about"
+          to="/servers"
           activeProps={{
             className: 'font-bold',
           }}
         >
-          About
+          Servers
+        </Link>
+        <Link
+          to="/ports"
+          activeProps={{ className: 'font-bold' }}
+        >
+          Ports
+        </Link>
+        <Link
+          to="/urls"
+          activeProps={{ className: 'font-bold' }}
+        >
+          URLs
         </Link>
       </div>
       <hr />
