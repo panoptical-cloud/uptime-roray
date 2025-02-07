@@ -9,6 +9,7 @@ func (app *application) routes() http.Handler {
 
 	mux.HandleFunc("POST /api/v1/server-port", httpReqLogger()(app, app.createServerPort))
 	mux.HandleFunc("GET /api/v1/server-port", httpReqLogger()(app, app.listServerPorts))
+	mux.HandleFunc("GET /api/v1/events/server-status", httpReqLogger()(app, app.getServerStatusEvents))
 	// mux.HandleFunc("GET /api/v1/server-port", httpReqLogger()(app, app.getServerPort))
 
 	return mux
