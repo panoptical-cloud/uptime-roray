@@ -2,17 +2,17 @@ import * as React from "react"
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
+  Database,
   Command,
   Frame,
   GalleryVerticalEnd,
   Map,
   PieChart,
   Settings2,
-  SquareTerminal,
+  Server,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
+import { NavMain } from "@/components/nav-servers"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -50,40 +50,40 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "QA-App1-Svc1",
       url: "#",
-      icon: SquareTerminal,
+      icon: Server,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Overview",
+          url: "/#",
+        },
+        {
+          title: "Incidents",
           url: "#",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Manage Servers",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Prod-App1-Svc1",
       url: "#",
-      icon: Bot,
+      icon: Server,
       items: [
         {
-          title: "Genesis",
+          title: "Overview",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "Incidents",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Manage Servers",
           url: "#",
         },
       ],
@@ -156,7 +156,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props} variant="floating">
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>

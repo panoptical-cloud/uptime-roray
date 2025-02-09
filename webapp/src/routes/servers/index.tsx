@@ -60,7 +60,7 @@ function RouteComponent() {
   return (
     <>
       <Button variant="default" asChild>
-        {/* <Link to="/servers/new">Add New Server</Link> */}
+        <Link to="/servers/new">Add New Server</Link>
       </Button>
       <Card className="w-[350px]">
         <CardHeader>
@@ -80,13 +80,13 @@ function RouteComponent() {
         <CardFooter>
           <div className="flex justify-between">
             <Button variant="secondary" asChild >
-              {/* <Link to="/servers/1">Details</Link> */}
+              <Link to="/servers/1">Details</Link>
             </Button>
             <Button variant="link" asChild >
-              {/* <Link to="/servers/1/edit">Edit</Link> */}
+              <Link to="/servers/1/edit">Edit</Link>
             </Button>
             <Button variant="destructive" asChild >
-              {/* <Link to="/servers/1/delete">Delete</Link> */}
+              <Link to="/servers/1/delete">Delete</Link>
             </Button>
           </div>
         </CardFooter>

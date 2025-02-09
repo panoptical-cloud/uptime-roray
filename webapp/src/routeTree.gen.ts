@@ -13,12 +13,15 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
-import { Route as UrlsIndexImport } from './routes/urls/index'
+import { Route as TestsIndexImport } from './routes/tests/index'
 import { Route as ServersIndexImport } from './routes/servers/index'
 import { Route as ServerPortIndexImport } from './routes/server-port/index'
-import { Route as PortsIndexImport } from './routes/ports/index'
+import { Route as ServersOverviewImport } from './routes/servers/overview'
+import { Route as ServersManageImport } from './routes/servers/manage'
+import { Route as ServersIncidentsImport } from './routes/servers/incidents'
 import { Route as ServerPortStatusImport } from './routes/server-port/status'
 import { Route as ServerPortFormImport } from './routes/server-port/form'
+import { Route as ConfigNatsIndexImport } from './routes/config/nats/index'
 
 // Create/Update Routes
 
@@ -34,9 +37,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const UrlsIndexRoute = UrlsIndexImport.update({
-  id: '/urls/',
-  path: '/urls/',
+const TestsIndexRoute = TestsIndexImport.update({
+  id: '/tests/',
+  path: '/tests/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -52,9 +55,21 @@ const ServerPortIndexRoute = ServerPortIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PortsIndexRoute = PortsIndexImport.update({
-  id: '/ports/',
-  path: '/ports/',
+const ServersOverviewRoute = ServersOverviewImport.update({
+  id: '/servers/overview',
+  path: '/servers/overview',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ServersManageRoute = ServersManageImport.update({
+  id: '/servers/manage',
+  path: '/servers/manage',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ServersIncidentsRoute = ServersIncidentsImport.update({
+  id: '/servers/incidents',
+  path: '/servers/incidents',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +82,12 @@ const ServerPortStatusRoute = ServerPortStatusImport.update({
 const ServerPortFormRoute = ServerPortFormImport.update({
   id: '/server-port/form',
   path: '/server-port/form',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ConfigNatsIndexRoute = ConfigNatsIndexImport.update({
+  id: '/config/nats/',
+  path: '/config/nats/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -102,11 +123,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerPortStatusImport
       parentRoute: typeof rootRoute
     }
-    '/ports/': {
-      id: '/ports/'
-      path: '/ports'
-      fullPath: '/ports'
-      preLoaderRoute: typeof PortsIndexImport
+    '/servers/incidents': {
+      id: '/servers/incidents'
+      path: '/servers/incidents'
+      fullPath: '/servers/incidents'
+      preLoaderRoute: typeof ServersIncidentsImport
+      parentRoute: typeof rootRoute
+    }
+    '/servers/manage': {
+      id: '/servers/manage'
+      path: '/servers/manage'
+      fullPath: '/servers/manage'
+      preLoaderRoute: typeof ServersManageImport
+      parentRoute: typeof rootRoute
+    }
+    '/servers/overview': {
+      id: '/servers/overview'
+      path: '/servers/overview'
+      fullPath: '/servers/overview'
+      preLoaderRoute: typeof ServersOverviewImport
       parentRoute: typeof rootRoute
     }
     '/server-port/': {
@@ -123,11 +158,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServersIndexImport
       parentRoute: typeof rootRoute
     }
-    '/urls/': {
-      id: '/urls/'
-      path: '/urls'
-      fullPath: '/urls'
-      preLoaderRoute: typeof UrlsIndexImport
+    '/tests/': {
+      id: '/tests/'
+      path: '/tests'
+      fullPath: '/tests'
+      preLoaderRoute: typeof TestsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/config/nats/': {
+      id: '/config/nats/'
+      path: '/config/nats'
+      fullPath: '/config/nats'
+      preLoaderRoute: typeof ConfigNatsIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -140,10 +182,13 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
-  '/ports': typeof PortsIndexRoute
+  '/servers/incidents': typeof ServersIncidentsRoute
+  '/servers/manage': typeof ServersManageRoute
+  '/servers/overview': typeof ServersOverviewRoute
   '/server-port': typeof ServerPortIndexRoute
   '/servers': typeof ServersIndexRoute
-  '/urls': typeof UrlsIndexRoute
+  '/tests': typeof TestsIndexRoute
+  '/config/nats': typeof ConfigNatsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -151,10 +196,13 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
-  '/ports': typeof PortsIndexRoute
+  '/servers/incidents': typeof ServersIncidentsRoute
+  '/servers/manage': typeof ServersManageRoute
+  '/servers/overview': typeof ServersOverviewRoute
   '/server-port': typeof ServerPortIndexRoute
   '/servers': typeof ServersIndexRoute
-  '/urls': typeof UrlsIndexRoute
+  '/tests': typeof TestsIndexRoute
+  '/config/nats': typeof ConfigNatsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -163,10 +211,13 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
-  '/ports/': typeof PortsIndexRoute
+  '/servers/incidents': typeof ServersIncidentsRoute
+  '/servers/manage': typeof ServersManageRoute
+  '/servers/overview': typeof ServersOverviewRoute
   '/server-port/': typeof ServerPortIndexRoute
   '/servers/': typeof ServersIndexRoute
-  '/urls/': typeof UrlsIndexRoute
+  '/tests/': typeof TestsIndexRoute
+  '/config/nats/': typeof ConfigNatsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -176,30 +227,39 @@ export interface FileRouteTypes {
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
-    | '/ports'
+    | '/servers/incidents'
+    | '/servers/manage'
+    | '/servers/overview'
     | '/server-port'
     | '/servers'
-    | '/urls'
+    | '/tests'
+    | '/config/nats'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
-    | '/ports'
+    | '/servers/incidents'
+    | '/servers/manage'
+    | '/servers/overview'
     | '/server-port'
     | '/servers'
-    | '/urls'
+    | '/tests'
+    | '/config/nats'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/server-port/form'
     | '/server-port/status'
-    | '/ports/'
+    | '/servers/incidents'
+    | '/servers/manage'
+    | '/servers/overview'
     | '/server-port/'
     | '/servers/'
-    | '/urls/'
+    | '/tests/'
+    | '/config/nats/'
   fileRoutesById: FileRoutesById
 }
 
@@ -208,10 +268,13 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ServerPortFormRoute: typeof ServerPortFormRoute
   ServerPortStatusRoute: typeof ServerPortStatusRoute
-  PortsIndexRoute: typeof PortsIndexRoute
+  ServersIncidentsRoute: typeof ServersIncidentsRoute
+  ServersManageRoute: typeof ServersManageRoute
+  ServersOverviewRoute: typeof ServersOverviewRoute
   ServerPortIndexRoute: typeof ServerPortIndexRoute
   ServersIndexRoute: typeof ServersIndexRoute
-  UrlsIndexRoute: typeof UrlsIndexRoute
+  TestsIndexRoute: typeof TestsIndexRoute
+  ConfigNatsIndexRoute: typeof ConfigNatsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -219,10 +282,13 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ServerPortFormRoute: ServerPortFormRoute,
   ServerPortStatusRoute: ServerPortStatusRoute,
-  PortsIndexRoute: PortsIndexRoute,
+  ServersIncidentsRoute: ServersIncidentsRoute,
+  ServersManageRoute: ServersManageRoute,
+  ServersOverviewRoute: ServersOverviewRoute,
   ServerPortIndexRoute: ServerPortIndexRoute,
   ServersIndexRoute: ServersIndexRoute,
-  UrlsIndexRoute: UrlsIndexRoute,
+  TestsIndexRoute: TestsIndexRoute,
+  ConfigNatsIndexRoute: ConfigNatsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -239,10 +305,13 @@ export const routeTree = rootRoute
         "/about",
         "/server-port/form",
         "/server-port/status",
-        "/ports/",
+        "/servers/incidents",
+        "/servers/manage",
+        "/servers/overview",
         "/server-port/",
         "/servers/",
-        "/urls/"
+        "/tests/",
+        "/config/nats/"
       ]
     },
     "/": {
@@ -257,8 +326,14 @@ export const routeTree = rootRoute
     "/server-port/status": {
       "filePath": "server-port/status.tsx"
     },
-    "/ports/": {
-      "filePath": "ports/index.tsx"
+    "/servers/incidents": {
+      "filePath": "servers/incidents.tsx"
+    },
+    "/servers/manage": {
+      "filePath": "servers/manage.tsx"
+    },
+    "/servers/overview": {
+      "filePath": "servers/overview.tsx"
     },
     "/server-port/": {
       "filePath": "server-port/index.tsx"
@@ -266,8 +341,11 @@ export const routeTree = rootRoute
     "/servers/": {
       "filePath": "servers/index.tsx"
     },
-    "/urls/": {
-      "filePath": "urls/index.tsx"
+    "/tests/": {
+      "filePath": "tests/index.tsx"
+    },
+    "/config/nats/": {
+      "filePath": "config/nats/index.tsx"
     }
   }
 }
