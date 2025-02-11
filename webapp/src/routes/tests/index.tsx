@@ -49,7 +49,9 @@ function RouteComponent() {
             <div className="aspect-video rounded-xl bg-muted/50" />
             <div className="aspect-video rounded-xl bg-muted/50" />
           </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" >
+          <h4>body msg</h4>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
