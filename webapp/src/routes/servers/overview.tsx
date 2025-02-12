@@ -81,7 +81,7 @@ function RouteComponent() {
                                     <TableRow key={server.name}>
                                         <TableCell>
                                             <span className="font-semibold"> {server.name}</span>
-                                            <Sheet>
+                                            <Sheet >
                                                 <SheetTrigger asChild>
                                                     <p className="text-xs pt-1 text-blue-500 underline underline-offset-4">
                                                         <Button variant="ghost" size="icon">
@@ -96,14 +96,14 @@ function RouteComponent() {
                                                             Server: FE-NGINX-1
                                                         </SheetTitle>
                                                         <SheetDescription>
-                                                            Agent: v 0.12
+                                                            Agent: v 0.12 [online]
                                                         </SheetDescription>
                                                         <h3>Last 24 hours</h3>
                                                     </SheetHeader>
                                                     <Separator className='mb-4 mt-4' />
                                                     <div className="grid gap-4 mb-4">
                                                         <h4><Badge variant="secondary" className='text-sm'>2 Events</Badge></h4>
-                                                        <ScrollArea className="h-[260px] w-[340px] rounded-md border p-4">
+                                                        <ScrollArea className="h-[260px] w-[340px] rounded-md border p-4 bg-muted" >
                                                             <div className="mt-2">
                                                                 {/* <h4 className="text-lg font-semibold mb-2">Timeline</h4> */}
                                                                 <ul className="relative border-l border-gray-200 ml-4">
@@ -136,7 +136,7 @@ function RouteComponent() {
                                                         </ScrollArea>
                                                         <Separator />
                                                         <h4><Badge variant="secondary" className='text-sm'>3 Incidents</Badge></h4>
-                                                        <ScrollArea className="h-[260px] w-[340px] rounded-md border p-4">
+                                                        <ScrollArea className="h-[260px] w-[340px] rounded-md border p-4 bg-muted">
                                                             <div className="mt-2">
                                                                 {/* <h4 className="text-lg font-semibold mb-2">Timeline</h4> */}
                                                                 <ul className="relative border-l border-gray-200 ml-4">
@@ -181,7 +181,8 @@ function RouteComponent() {
                                                         </ScrollArea>
                                                     </div>
                                                     <SheetFooter>
-                                                        <SheetClose asChild>
+                                                        <SheetClose>
+                                                            <Button type="submit">Close</Button>
                                                             <Button type="submit">Close</Button>
                                                         </SheetClose>
                                                     </SheetFooter>
