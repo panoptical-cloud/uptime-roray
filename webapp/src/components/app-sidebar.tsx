@@ -11,8 +11,7 @@ import {
   Settings2,
   Server,
 } from "lucide-react"
-
-import { NavMain } from "@/components/nav-servers"
+import { NavServers } from "@/components/nav-servers"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -48,7 +47,7 @@ const data = {
       plan: "Free",
     },
   ],
-  navMain: [
+  navServers: [
     {
       title: "QA-App1-Svc1",
       url: "#",
@@ -57,7 +56,7 @@ const data = {
       items: [
         {
           title: "Overview",
-          url: "/#",
+          url: "/server-groups/overview/1",
         },
         {
           title: "Incidents",
@@ -76,7 +75,7 @@ const data = {
       items: [
         {
           title: "Overview",
-          url: "#",
+          url: "/servers/overview",
         },
         {
           title: "Incidents",
@@ -161,7 +160,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavServers items={data.navServers} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
