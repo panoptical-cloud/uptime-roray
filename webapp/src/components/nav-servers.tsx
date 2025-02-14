@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, Plus, type LucideIcon } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/collapsible"
 import {
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
@@ -35,6 +36,9 @@ export function NavServers({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Server Groups</SidebarGroupLabel>
+      <SidebarGroupAction title="Add Server">
+        <Plus /> <span className="sr-only">Add Server</span>
+      </SidebarGroupAction>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -57,7 +61,7 @@ export function NavServers({
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
                         <Link to={subItem.url}>
-                        <span>{subItem.title}</span>
+                          <span>{subItem.title}</span>
                         </Link>
                         {/* <a href={subItem.url}>
                           <span>{subItem.title}</span>

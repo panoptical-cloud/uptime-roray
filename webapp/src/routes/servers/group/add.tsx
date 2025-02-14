@@ -1,8 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
 import type { FieldApi } from '@tanstack/react-form'
 import { useForm } from '@tanstack/react-form'
+import { createFileRoute } from '@tanstack/react-router'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+
+export const Route = createFileRoute('/servers/group/add')({
+  component: RouteComponent,
+})
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
@@ -15,15 +19,11 @@ function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   )
 }
 
-export const Route = createFileRoute('/server-port/form')({
-  component: RouteComponent,
-})
-
 function RouteComponent() {
   const form = useForm({
     defaultValues: {
-      server: '',
-      port: -1,
+      groupName: '',
+      groupDesc: '',
     },
     onSubmit: async ({ value }) => {
       // Do something with form data
@@ -32,83 +32,86 @@ function RouteComponent() {
   })
 
   return (
-    <div>
-      <h2>
-        Add a server port for monitoring
+    <div className="w-2/3 max-w-xl m-8 bg-muted/50 rounded-xl p-8">
+      <h2 className="mb-8 text-4xl font-semibold ">
+        Add new server group
       </h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          form.handleSubmit()
-        }}
-      >
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}>
         <div>
           <form.Field
-            name="server"
+            name="groupName"
             validators={{
               onChangeAsync: ({ value }) =>
                 !value
-                  ? 'A server name is required'
+                  ? 'A group name is required'
                   : value.length < 3
-                    ? 'server name must be at least 3 characters'
+                    ? 'group name must be at least 3 characters'
                     : undefined,
               onChangeAsyncDebounceMs: 500,
             }}
             children={(field) => (
-              <>
-                <Label htmlFor={field.name}>Server Host/IP</Label>
+              <div className="flex flex-col space-y-4 m-4">
+                <Label htmlFor={field.name}>Group Name</Label>
                 <Input
+                  className="pb-4"
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
                   onChange={e => field.handleChange(e.target.value)}
-                  type="text" 
-                  />
+                  type="text"
+                />
                 <FieldInfo field={field} />
-              </>
+              </div>
             )}
           />
         </div>
         <div>
           <form.Field
-            name="port"
+            name="groupDesc"
             validators={{
-              onChangeAsync: ({ value }) => value < 0 ? 'Port must be a positive number' : value > 65535 ? 'Port must be less than 65536' : undefined,
+              onChangeAsync: ({ value }) =>
+                !value
+                  ? 'A group description is required'
+                  : value.length < 3
+                    ? 'group description must be at least 3 characters'
+                    : undefined,
               onChangeAsyncDebounceMs: 500,
-              // onChangeAsync: async ({ value }) => {
-              //   await new Promise(resolve => setTimeout(resolve, 1000))
-              //   return "Enter valid port number"
-              // }
             }}
             children={(field) => (
-              <>
-                <Label htmlFor={field.name}>Port</Label>
+              <div className="flex flex-col space-y-4 m-4">
+                <Label htmlFor={field.name}>Group Description</Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
-                  onChange={e => field.handleChange(Number(e.target.value))}
-                  type="number" />
+                  onChange={e => field.handleChange(e.target.value)}
+                  type="text"
+                />
                 <FieldInfo field={field} />
-              </>
+              </div>
             )}
           />
         </div>
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
-            <>
-              <button type="submit" disabled={!canSubmit}>
-                {isSubmitting ? '...' : 'Submit'}
+            <div className='flex justify-end'>
+              <button
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className="w-28 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-4"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
               </button>
-              <button type="reset" onClick={() => form.reset()}>
-                Reset
-              </button>
-            </>
+            </div>
           )}
         />
       </form>
     </div>
+
   )
 }

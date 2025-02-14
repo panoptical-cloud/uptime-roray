@@ -50,7 +50,6 @@ function RouteComponent() {
                         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight p-4">
                             Overview
                         </h3>
-
                     </div>
                     <div className="aspect-video rounded-xl bg-muted/50" >
                         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight p-4">
