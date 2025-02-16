@@ -9,6 +9,62 @@ import (
 	"context"
 )
 
+const createServer = `-- name: CreateServer :one
+INSERT INTO servers 
+    (name, hostname, ip, group_id)
+VALUES
+    (?, ?, ?, ?)
+RETURNING id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token
+`
+
+type CreateServerParams struct {
+	Name     string  `json:"name"`
+	Hostname string  `json:"hostname"`
+	Ip       *string `json:"ip"`
+	GroupID  int64   `json:"group_id"`
+}
+
+func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (Server, error) {
+	row := q.queryRow(ctx, q.createServerStmt, createServer,
+		arg.Name,
+		arg.Hostname,
+		arg.Ip,
+		arg.GroupID,
+	)
+	var i Server
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Hostname,
+		&i.Ip,
+		&i.AgentPort,
+		&i.AgentVersion,
+		&i.GroupID,
+		&i.OneTimeToken,
+	)
+	return i, err
+}
+
+const createServerGroup = `-- name: CreateServerGroup :one
+INSERT INTO server_groups 
+    (name, desc)
+VALUES
+    (?, ?)
+RETURNING id, name, "desc"
+`
+
+type CreateServerGroupParams struct {
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+}
+
+func (q *Queries) CreateServerGroup(ctx context.Context, arg CreateServerGroupParams) (ServerGroup, error) {
+	row := q.queryRow(ctx, q.createServerGroupStmt, createServerGroup, arg.Name, arg.Desc)
+	var i ServerGroup
+	err := row.Scan(&i.ID, &i.Name, &i.Desc)
+	return i, err
+}
+
 const createServerPort = `-- name: CreateServerPort :one
 INSERT INTO server_ports 
     (server_id, port)
@@ -29,6 +85,26 @@ func (q *Queries) CreateServerPort(ctx context.Context, arg CreateServerPortPara
 	return i, err
 }
 
+const deleteServerGroup = `-- name: DeleteServerGroup :exec
+DELETE FROM server_groups WHERE name = ?
+`
+
+func (q *Queries) DeleteServerGroup(ctx context.Context, name string) error {
+	_, err := q.exec(ctx, q.deleteServerGroupStmt, deleteServerGroup, name)
+	return err
+}
+
+const getServerGroup = `-- name: GetServerGroup :one
+SELECT id, name, desc FROM server_groups WHERE name = ?
+`
+
+func (q *Queries) GetServerGroup(ctx context.Context, name string) (ServerGroup, error) {
+	row := q.queryRow(ctx, q.getServerGroupStmt, getServerGroup, name)
+	var i ServerGroup
+	err := row.Scan(&i.ID, &i.Name, &i.Desc)
+	return i, err
+}
+
 const getServerPort = `-- name: GetServerPort :one
 SELECT server_id, port FROM server_ports WHERE server_id = ? AND port = ?
 `
@@ -45,6 +121,33 @@ func (q *Queries) GetServerPort(ctx context.Context, arg GetServerPortParams) (S
 	return i, err
 }
 
+const listServerGroups = `-- name: ListServerGroups :many
+SELECT id, name, desc FROM server_groups
+`
+
+func (q *Queries) ListServerGroups(ctx context.Context) ([]ServerGroup, error) {
+	rows, err := q.query(ctx, q.listServerGroupsStmt, listServerGroups)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ServerGroup{}
+	for rows.Next() {
+		var i ServerGroup
+		if err := rows.Scan(&i.ID, &i.Name, &i.Desc); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listServerPorts = `-- name: ListServerPorts :many
 SELECT server_id, port FROM server_ports
 `
@@ -59,6 +162,42 @@ func (q *Queries) ListServerPorts(ctx context.Context) ([]ServerPort, error) {
 	for rows.Next() {
 		var i ServerPort
 		if err := rows.Scan(&i.ServerID, &i.Port); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listServersByGroup = `-- name: ListServersByGroup :many
+SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token FROM servers WHERE group_id = ?
+`
+
+func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Server, error) {
+	rows, err := q.query(ctx, q.listServersByGroupStmt, listServersByGroup, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Server{}
+	for rows.Next() {
+		var i Server
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Hostname,
+			&i.Ip,
+			&i.AgentPort,
+			&i.AgentVersion,
+			&i.GroupID,
+			&i.OneTimeToken,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

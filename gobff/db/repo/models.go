@@ -4,6 +4,23 @@
 
 package repo
 
+type Server struct {
+	ID           int64   `json:"id"`
+	Name         string  `json:"name"`
+	Hostname     string  `json:"hostname"`
+	Ip           *string `json:"ip"`
+	AgentPort    *int64  `json:"agent_port"`
+	AgentVersion *string `json:"agent_version"`
+	GroupID      int64   `json:"group_id"`
+	OneTimeToken *string `json:"one_time_token"`
+}
+
+type ServerGroup struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+}
+
 type ServerPort struct {
 	ServerID string `json:"server_id"`
 	Port     int64  `json:"port"`

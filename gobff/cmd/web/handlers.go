@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"pc-uptime/bff/db/repo"
+	"strconv"
 	"time"
 
 	"net/http"
@@ -59,6 +60,84 @@ func (app *application) listServerPorts(w http.ResponseWriter, r *http.Request) 
 		app.logger.Error("Error listing server port", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error listing server port"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) createServerGroup(w http.ResponseWriter, r *http.Request) {
+	var reqp repo.CreateServerGroupParams
+	err := json.NewDecoder(r.Body).Decode(&reqp)
+	if err != nil {
+		app.logger.Error("Error decoding request body", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error decoding request body"))
+		return
+	}
+	db, err := app.repo.CreateServerGroup(r.Context(), reqp)
+
+	if err != nil {
+		app.logger.Error("Error creating server group", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error creating server group"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) listServerGroups(w http.ResponseWriter, r *http.Request) {
+	db, err := app.repo.ListServerGroups(r.Context())
+	if err != nil {
+		app.logger.Error("Error listing server group", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error listing server group"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) addServerToGroup(w http.ResponseWriter, r *http.Request) {
+	var reqp repo.CreateServerParams
+	err := json.NewDecoder(r.Body).Decode(&reqp)
+	if err != nil {
+		app.logger.Error("Error decoding request body", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error decoding request body"))
+		return
+	}
+	db, err := app.repo.CreateServer(r.Context(), reqp)
+	if err != nil {
+		app.logger.Error("Error adding server tto group", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error adding server to group"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) listServersByGroup(w http.ResponseWriter, r *http.Request) {
+	_groupId := r.PathValue("id")
+	groupId, err := strconv.Atoi(_groupId)
+	if err != nil {
+		app.logger.Error("Error converting group id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting group id to int"))
+		return
+	}
+	db, err := app.repo.ListServersByGroup(r.Context(), int64(groupId))
+	if err != nil {
+		app.logger.Error("Error listing servers by group", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error listing servers by group"))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

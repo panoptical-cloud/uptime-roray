@@ -24,23 +24,61 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createServerStmt, err = db.PrepareContext(ctx, createServer); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateServer: %w", err)
+	}
+	if q.createServerGroupStmt, err = db.PrepareContext(ctx, createServerGroup); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateServerGroup: %w", err)
+	}
 	if q.createServerPortStmt, err = db.PrepareContext(ctx, createServerPort); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateServerPort: %w", err)
+	}
+	if q.deleteServerGroupStmt, err = db.PrepareContext(ctx, deleteServerGroup); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteServerGroup: %w", err)
+	}
+	if q.getServerGroupStmt, err = db.PrepareContext(ctx, getServerGroup); err != nil {
+		return nil, fmt.Errorf("error preparing query GetServerGroup: %w", err)
 	}
 	if q.getServerPortStmt, err = db.PrepareContext(ctx, getServerPort); err != nil {
 		return nil, fmt.Errorf("error preparing query GetServerPort: %w", err)
 	}
+	if q.listServerGroupsStmt, err = db.PrepareContext(ctx, listServerGroups); err != nil {
+		return nil, fmt.Errorf("error preparing query ListServerGroups: %w", err)
+	}
 	if q.listServerPortsStmt, err = db.PrepareContext(ctx, listServerPorts); err != nil {
 		return nil, fmt.Errorf("error preparing query ListServerPorts: %w", err)
+	}
+	if q.listServersByGroupStmt, err = db.PrepareContext(ctx, listServersByGroup); err != nil {
+		return nil, fmt.Errorf("error preparing query ListServersByGroup: %w", err)
 	}
 	return &q, nil
 }
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createServerStmt != nil {
+		if cerr := q.createServerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createServerStmt: %w", cerr)
+		}
+	}
+	if q.createServerGroupStmt != nil {
+		if cerr := q.createServerGroupStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createServerGroupStmt: %w", cerr)
+		}
+	}
 	if q.createServerPortStmt != nil {
 		if cerr := q.createServerPortStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createServerPortStmt: %w", cerr)
+		}
+	}
+	if q.deleteServerGroupStmt != nil {
+		if cerr := q.deleteServerGroupStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteServerGroupStmt: %w", cerr)
+		}
+	}
+	if q.getServerGroupStmt != nil {
+		if cerr := q.getServerGroupStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getServerGroupStmt: %w", cerr)
 		}
 	}
 	if q.getServerPortStmt != nil {
@@ -48,9 +86,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getServerPortStmt: %w", cerr)
 		}
 	}
+	if q.listServerGroupsStmt != nil {
+		if cerr := q.listServerGroupsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listServerGroupsStmt: %w", cerr)
+		}
+	}
 	if q.listServerPortsStmt != nil {
 		if cerr := q.listServerPortsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listServerPortsStmt: %w", cerr)
+		}
+	}
+	if q.listServersByGroupStmt != nil {
+		if cerr := q.listServersByGroupStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listServersByGroupStmt: %w", cerr)
 		}
 	}
 	return err
@@ -90,19 +138,31 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                   DBTX
-	tx                   *sql.Tx
-	createServerPortStmt *sql.Stmt
-	getServerPortStmt    *sql.Stmt
-	listServerPortsStmt  *sql.Stmt
+	db                     DBTX
+	tx                     *sql.Tx
+	createServerStmt       *sql.Stmt
+	createServerGroupStmt  *sql.Stmt
+	createServerPortStmt   *sql.Stmt
+	deleteServerGroupStmt  *sql.Stmt
+	getServerGroupStmt     *sql.Stmt
+	getServerPortStmt      *sql.Stmt
+	listServerGroupsStmt   *sql.Stmt
+	listServerPortsStmt    *sql.Stmt
+	listServersByGroupStmt *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                   tx,
-		tx:                   tx,
-		createServerPortStmt: q.createServerPortStmt,
-		getServerPortStmt:    q.getServerPortStmt,
-		listServerPortsStmt:  q.listServerPortsStmt,
+		db:                     tx,
+		tx:                     tx,
+		createServerStmt:       q.createServerStmt,
+		createServerGroupStmt:  q.createServerGroupStmt,
+		createServerPortStmt:   q.createServerPortStmt,
+		deleteServerGroupStmt:  q.deleteServerGroupStmt,
+		getServerGroupStmt:     q.getServerGroupStmt,
+		getServerPortStmt:      q.getServerPortStmt,
+		listServerGroupsStmt:   q.listServerGroupsStmt,
+		listServerPortsStmt:    q.listServerPortsStmt,
+		listServersByGroupStmt: q.listServersByGroupStmt,
 	}
 }

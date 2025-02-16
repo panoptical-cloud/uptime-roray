@@ -8,3 +8,31 @@ Content-Type: application/json
     "port": 3001,
     "server_id": "1.1.1.1"
 }
+
+### POST /api/v1/server-groups
+POST {{baseUrl}}/api/v1/server-groups
+Content-Type: application/json
+
+{
+    "name": "name from test http curl",
+    "desc": "desc from test http curl"
+}
+
+### GET /api/v1/server-groups
+GET {{baseUrl}}/api/v1/server-groups
+Content-Type: application/json
+
+### GET all servers by server group id
+GET {{baseUrl}}/api/v1/server-groups/1/servers
+Content-Type: application/json
+
+### Add server to server group
+POST {{baseUrl}}/api/v1/server-groups/servers
+Content-Type: application/json
+
+{
+    "name":"fe server for store app",
+    "hostname":"fe-store-app-1",
+    "ip":"1.2.33.41",
+    "group_id":1
+}
