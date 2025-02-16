@@ -36,9 +36,11 @@ export function NavServers({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Server Groups</SidebarGroupLabel>
-      <SidebarGroupAction title="Add Server">
-        <Plus /> <span className="sr-only">Add Server</span>
-      </SidebarGroupAction>
+      <Link to="/server-groups/add">
+        <SidebarGroupAction title="Add Server" >
+          <Plus /> <span className="sr-only">Add Server</span>
+        </SidebarGroupAction>
+      </Link>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

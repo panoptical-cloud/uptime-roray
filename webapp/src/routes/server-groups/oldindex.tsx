@@ -6,32 +6,34 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 
-import { ChevronUp } from "lucide-react";
-import { Button } from '@/components/ui/button';
-import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from 'react';
+import { ChevronUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useEffect, useState } from 'react'
 
-export const Route = createFileRoute('/servers/')({
+export const Route = createFileRoute('/server-groups/oldindex')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const [serverStatus, setServerStatus] = useState({ "disk": 0, "ram": 0, "cpu": 0 })
+  const [serverStatus, setServerStatus] = useState({ disk: 0, ram: 0, cpu: 0 })
 
   useEffect(() => {
-    console.log("Component useEffect mounted");
+    console.log('Component useEffect mounted')
 
     // opening a connection to the server to begin receiving events from it
-    const eventSource = new EventSource("http://localhost:9191/api/v1/events/server-status");
+    const eventSource = new EventSource(
+      'http://localhost:9191/api/v1/events/server-status',
+    )
 
-    eventSource.addEventListener("server-1", (event) => {
+    eventSource.addEventListener('server-1', (event) => {
       if (event.data) {
-        const serverStatusData = JSON.parse(event.data);
-        setServerStatus({ ...serverStatusData });
+        const serverStatusData = JSON.parse(event.data)
+        setServerStatus({ ...serverStatusData })
       }
-    });
+    })
 
     // attaching a handler to receive message events
     // eventSource.onmessage = (event) => {
@@ -43,19 +45,19 @@ function RouteComponent() {
 
     // attaching a handler to handle errors
     eventSource.onerror = (error) => {
-      console.error("EventSource failed: ", error);
+      console.error('EventSource failed: ', error)
       return () => {
-        console.log("ES closing since in error");
-        eventSource.close();
-      };
-    };
+        console.log('ES closing since in error')
+        eventSource.close()
+      }
+    }
 
     // terminating the connection on component unmount
     return () => {
-      console.log("Component unmounted, closing EventSource");
-      eventSource.close();
-    };
-  }, []);
+      console.log('Component unmounted, closing EventSource')
+      eventSource.close()
+    }
+  }, [])
 
   return (
     <>
@@ -66,7 +68,9 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle>Roray Blog Server</CardTitle>
           <CardDescription>
-            <span style={{ display: 'flex', alignItems: 'center' }}><ChevronUp color='lightgreen' size="24" /> Healthy</span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <ChevronUp color="lightgreen" size="24" /> Healthy
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -79,13 +83,13 @@ function RouteComponent() {
         </CardContent>
         <CardFooter>
           <div className="flex justify-between">
-            <Button variant="secondary" asChild >
+            <Button variant="secondary" asChild>
               <Link to="/servers/1">Details</Link>
             </Button>
-            <Button variant="link" asChild >
+            <Button variant="link" asChild>
               <Link to="/servers/1/edit">Edit</Link>
             </Button>
-            <Button variant="destructive" asChild >
+            <Button variant="destructive" asChild>
               <Link to="/servers/1/delete">Delete</Link>
             </Button>
           </div>
@@ -93,5 +97,4 @@ function RouteComponent() {
       </Card>
     </>
   )
-
 }

@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/servers/manage/columns')({
+export const Route = createFileRoute('/server-groups/incidents')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>Hello "/servers/manage/columns"!</div>
+  return <div>Hello "/servers/incidents"!</div>
 }

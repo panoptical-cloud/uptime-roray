@@ -56,7 +56,7 @@ const data = {
       items: [
         {
           title: "Overview",
-          url: "/server-groups/overview/1",
+          url: "/server-groups",
         },
         {
           title: "Incidents",
@@ -64,7 +64,7 @@ const data = {
         },
         {
           title: "Manage Servers",
-          url: "#",
+          url: "/server-groups/manage-servers",
         },
       ],
     },
