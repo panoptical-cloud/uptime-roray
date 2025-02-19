@@ -46,7 +46,7 @@ function RouteComponent() {
 
   return (
     <>
-      <div className="w-2/3 max-w-xl m-8 bg-muted/50 rounded-xl p-8">
+      <div className="w-2/3 max-w-xl mb-8 mx-8 bg-muted/50 rounded-xl p-8">
         <h2 className="pb-4 text-3xl font-semibold">Group: {serverGroup.name}</h2>
         <h4 className="pb-2 text-lg font-medium">
           Description: {serverGroup.desc}
@@ -64,39 +64,37 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
-        <div className="p-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Hostname</TableHead>
-                <TableHead>IP</TableHead>
-                <TableHead>Agent Port</TableHead>
-                <TableHead>Agent Version</TableHead>
-                <TableHead>Actions</TableHead>
+      <div className=" flex-1 rounded-xl bg-muted/50 max-w-7xl mx-8 p-8">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Hostname</TableHead>
+              <TableHead>IP</TableHead>
+              <TableHead>Agent Port</TableHead>
+              <TableHead>Agent Version</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {servers.map((server) => (
+              <TableRow key={server.id}>
+                <TableCell className='py-2 px-4'>{server.name}</TableCell>
+                <TableCell className='py-2 px-4'>{server.hostname}</TableCell>
+                <TableCell className='py-2 px-4'>{server.ip}</TableCell>
+                <TableCell className='py-2 px-4'>{server.agent_port}</TableCell>
+                <TableCell className='py-2 px-4'>{server.agent_version}</TableCell>
+                <TableCell className='py-2 px-4'>
+                  <Link to={`/server-groups/manage-servers/${serverGroup.id}/edit-server/${server.id}`}>
+                    <Button size="sm" variant="secondary">
+                      Edit
+                    </Button>
+                  </Link>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {servers.map((server) => (
-                <TableRow key={server.id}>
-                  <TableCell>{server.name}</TableCell>
-                  <TableCell>{server.hostname}</TableCell>
-                  <TableCell>{server.ip}</TableCell>
-                  <TableCell>{server.agent_port}</TableCell>
-                  <TableCell>{server.agent_version}</TableCell>
-                  <TableCell>
-                    <Link to={`/server-groups/manage-servers/${serverGroup.id}/edit-server/${server.id}`}>
-                      <Button size="sm" variant="secondary">
-                        Edit
-                      </Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </>
   )
