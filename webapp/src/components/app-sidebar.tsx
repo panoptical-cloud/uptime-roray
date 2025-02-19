@@ -11,7 +11,7 @@ import {
   Settings2,
   Server,
 } from "lucide-react"
-import { NavServers } from "@/components/nav-servers"
+import { NavServerGroups } from "@/components/nav-server-groups"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -154,13 +154,40 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [navData, setNavData] = React.useState([])
+
+  React.useEffect(() => {
+    (async () => {
+      const _resp = await fetch('/api/v1/server-groups')
+      const qr = await _resp.json()
+      qr.map((k, i) => {
+        qr[i].url = "#"
+        qr[i].icon = Server
+        qr[i].items = []
+        qr[i].items.push({
+          title: "Overview",
+          url: `/server-groups/${k.id}`,
+        }, {
+          title: "Incidents",
+          url: "#",
+        }, {
+          title: "Manage Servers",
+          url: `/server-groups/manage-servers/${k.id}`,
+        })
+      })
+      // console.table(qr)
+      setNavData(qr)
+    })()
+  }, [])
+
   return (
     <Sidebar collapsible="icon" {...props} variant="floating">
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavServers items={data.navServers} />
+        {/* {typeof navData != "undefined" && navData !== null && <NavServerGroups items={navData} />} */}
+        {typeof navData != "undefined" && navData !== null && <NavServerGroups items={navData} />}
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

@@ -19,11 +19,11 @@ import { Route as ServerPortIndexImport } from './routes/server-port/index'
 import { Route as ServerGroupsIndexImport } from './routes/server-groups/index'
 import { Route as ServerPortStatusImport } from './routes/server-port/status'
 import { Route as ServerPortFormImport } from './routes/server-port/form'
-import { Route as ServerGroupsManageServersImport } from './routes/server-groups/manage-servers'
 import { Route as ServerGroupsIncidentsImport } from './routes/server-groups/incidents'
 import { Route as ServerGroupsAddServerImport } from './routes/server-groups/add-server'
 import { Route as ServerGroupsAddImport } from './routes/server-groups/add'
 import { Route as ConfigNatsIndexImport } from './routes/config/nats/index'
+import { Route as ServerGroupsManageServersGroupIdImport } from './routes/server-groups/manage-servers.$groupId'
 
 // Create/Update Routes
 
@@ -75,12 +75,6 @@ const ServerPortFormRoute = ServerPortFormImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ServerGroupsManageServersRoute = ServerGroupsManageServersImport.update({
-  id: '/server-groups/manage-servers',
-  path: '/server-groups/manage-servers',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const ServerGroupsIncidentsRoute = ServerGroupsIncidentsImport.update({
   id: '/server-groups/incidents',
   path: '/server-groups/incidents',
@@ -104,6 +98,13 @@ const ConfigNatsIndexRoute = ConfigNatsIndexImport.update({
   path: '/config/nats/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const ServerGroupsManageServersGroupIdRoute =
+  ServerGroupsManageServersGroupIdImport.update({
+    id: '/server-groups/manage-servers/$groupId',
+    path: '/server-groups/manage-servers/$groupId',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -142,13 +143,6 @@ declare module '@tanstack/react-router' {
       path: '/server-groups/incidents'
       fullPath: '/server-groups/incidents'
       preLoaderRoute: typeof ServerGroupsIncidentsImport
-      parentRoute: typeof rootRoute
-    }
-    '/server-groups/manage-servers': {
-      id: '/server-groups/manage-servers'
-      path: '/server-groups/manage-servers'
-      fullPath: '/server-groups/manage-servers'
-      preLoaderRoute: typeof ServerGroupsManageServersImport
       parentRoute: typeof rootRoute
     }
     '/server-groups/oldindex': {
@@ -193,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestsIndexImport
       parentRoute: typeof rootRoute
     }
+    '/server-groups/manage-servers/$groupId': {
+      id: '/server-groups/manage-servers/$groupId'
+      path: '/server-groups/manage-servers/$groupId'
+      fullPath: '/server-groups/manage-servers/$groupId'
+      preLoaderRoute: typeof ServerGroupsManageServersGroupIdImport
+      parentRoute: typeof rootRoute
+    }
     '/config/nats/': {
       id: '/config/nats/'
       path: '/config/nats'
@@ -211,13 +212,13 @@ export interface FileRoutesByFullPath {
   '/server-groups/add': typeof ServerGroupsAddRoute
   '/server-groups/add-server': typeof ServerGroupsAddServerRoute
   '/server-groups/incidents': typeof ServerGroupsIncidentsRoute
-  '/server-groups/manage-servers': typeof ServerGroupsManageServersRoute
   '/server-groups/oldindex': typeof ServerGroupsOldindexRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
   '/server-groups': typeof ServerGroupsIndexRoute
   '/server-port': typeof ServerPortIndexRoute
   '/tests': typeof TestsIndexRoute
+  '/server-groups/manage-servers/$groupId': typeof ServerGroupsManageServersGroupIdRoute
   '/config/nats': typeof ConfigNatsIndexRoute
 }
 
@@ -227,13 +228,13 @@ export interface FileRoutesByTo {
   '/server-groups/add': typeof ServerGroupsAddRoute
   '/server-groups/add-server': typeof ServerGroupsAddServerRoute
   '/server-groups/incidents': typeof ServerGroupsIncidentsRoute
-  '/server-groups/manage-servers': typeof ServerGroupsManageServersRoute
   '/server-groups/oldindex': typeof ServerGroupsOldindexRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
   '/server-groups': typeof ServerGroupsIndexRoute
   '/server-port': typeof ServerPortIndexRoute
   '/tests': typeof TestsIndexRoute
+  '/server-groups/manage-servers/$groupId': typeof ServerGroupsManageServersGroupIdRoute
   '/config/nats': typeof ConfigNatsIndexRoute
 }
 
@@ -244,13 +245,13 @@ export interface FileRoutesById {
   '/server-groups/add': typeof ServerGroupsAddRoute
   '/server-groups/add-server': typeof ServerGroupsAddServerRoute
   '/server-groups/incidents': typeof ServerGroupsIncidentsRoute
-  '/server-groups/manage-servers': typeof ServerGroupsManageServersRoute
   '/server-groups/oldindex': typeof ServerGroupsOldindexRoute
   '/server-port/form': typeof ServerPortFormRoute
   '/server-port/status': typeof ServerPortStatusRoute
   '/server-groups/': typeof ServerGroupsIndexRoute
   '/server-port/': typeof ServerPortIndexRoute
   '/tests/': typeof TestsIndexRoute
+  '/server-groups/manage-servers/$groupId': typeof ServerGroupsManageServersGroupIdRoute
   '/config/nats/': typeof ConfigNatsIndexRoute
 }
 
@@ -262,13 +263,13 @@ export interface FileRouteTypes {
     | '/server-groups/add'
     | '/server-groups/add-server'
     | '/server-groups/incidents'
-    | '/server-groups/manage-servers'
     | '/server-groups/oldindex'
     | '/server-port/form'
     | '/server-port/status'
     | '/server-groups'
     | '/server-port'
     | '/tests'
+    | '/server-groups/manage-servers/$groupId'
     | '/config/nats'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -277,13 +278,13 @@ export interface FileRouteTypes {
     | '/server-groups/add'
     | '/server-groups/add-server'
     | '/server-groups/incidents'
-    | '/server-groups/manage-servers'
     | '/server-groups/oldindex'
     | '/server-port/form'
     | '/server-port/status'
     | '/server-groups'
     | '/server-port'
     | '/tests'
+    | '/server-groups/manage-servers/$groupId'
     | '/config/nats'
   id:
     | '__root__'
@@ -292,13 +293,13 @@ export interface FileRouteTypes {
     | '/server-groups/add'
     | '/server-groups/add-server'
     | '/server-groups/incidents'
-    | '/server-groups/manage-servers'
     | '/server-groups/oldindex'
     | '/server-port/form'
     | '/server-port/status'
     | '/server-groups/'
     | '/server-port/'
     | '/tests/'
+    | '/server-groups/manage-servers/$groupId'
     | '/config/nats/'
   fileRoutesById: FileRoutesById
 }
@@ -309,13 +310,13 @@ export interface RootRouteChildren {
   ServerGroupsAddRoute: typeof ServerGroupsAddRoute
   ServerGroupsAddServerRoute: typeof ServerGroupsAddServerRoute
   ServerGroupsIncidentsRoute: typeof ServerGroupsIncidentsRoute
-  ServerGroupsManageServersRoute: typeof ServerGroupsManageServersRoute
   ServerGroupsOldindexRoute: typeof ServerGroupsOldindexRoute
   ServerPortFormRoute: typeof ServerPortFormRoute
   ServerPortStatusRoute: typeof ServerPortStatusRoute
   ServerGroupsIndexRoute: typeof ServerGroupsIndexRoute
   ServerPortIndexRoute: typeof ServerPortIndexRoute
   TestsIndexRoute: typeof TestsIndexRoute
+  ServerGroupsManageServersGroupIdRoute: typeof ServerGroupsManageServersGroupIdRoute
   ConfigNatsIndexRoute: typeof ConfigNatsIndexRoute
 }
 
@@ -325,13 +326,13 @@ const rootRouteChildren: RootRouteChildren = {
   ServerGroupsAddRoute: ServerGroupsAddRoute,
   ServerGroupsAddServerRoute: ServerGroupsAddServerRoute,
   ServerGroupsIncidentsRoute: ServerGroupsIncidentsRoute,
-  ServerGroupsManageServersRoute: ServerGroupsManageServersRoute,
   ServerGroupsOldindexRoute: ServerGroupsOldindexRoute,
   ServerPortFormRoute: ServerPortFormRoute,
   ServerPortStatusRoute: ServerPortStatusRoute,
   ServerGroupsIndexRoute: ServerGroupsIndexRoute,
   ServerPortIndexRoute: ServerPortIndexRoute,
   TestsIndexRoute: TestsIndexRoute,
+  ServerGroupsManageServersGroupIdRoute: ServerGroupsManageServersGroupIdRoute,
   ConfigNatsIndexRoute: ConfigNatsIndexRoute,
 }
 
@@ -350,13 +351,13 @@ export const routeTree = rootRoute
         "/server-groups/add",
         "/server-groups/add-server",
         "/server-groups/incidents",
-        "/server-groups/manage-servers",
         "/server-groups/oldindex",
         "/server-port/form",
         "/server-port/status",
         "/server-groups/",
         "/server-port/",
         "/tests/",
+        "/server-groups/manage-servers/$groupId",
         "/config/nats/"
       ]
     },
@@ -375,9 +376,6 @@ export const routeTree = rootRoute
     "/server-groups/incidents": {
       "filePath": "server-groups/incidents.tsx"
     },
-    "/server-groups/manage-servers": {
-      "filePath": "server-groups/manage-servers.tsx"
-    },
     "/server-groups/oldindex": {
       "filePath": "server-groups/oldindex.tsx"
     },
@@ -395,6 +393,9 @@ export const routeTree = rootRoute
     },
     "/tests/": {
       "filePath": "tests/index.tsx"
+    },
+    "/server-groups/manage-servers/$groupId": {
+      "filePath": "server-groups/manage-servers.$groupId.tsx"
     },
     "/config/nats/": {
       "filePath": "config/nats/index.tsx"

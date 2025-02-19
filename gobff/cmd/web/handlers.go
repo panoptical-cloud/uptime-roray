@@ -103,6 +103,27 @@ func (app *application) listServerGroups(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(db)
 }
 
+func (app *application) getServerGroup(w http.ResponseWriter, r *http.Request) {
+	_groupId := r.PathValue("id")
+	groupId, err := strconv.Atoi(_groupId)
+	if err != nil {
+		app.logger.Error("Error converting group id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting group id to int"))
+		return
+	}
+	db, err := app.repo.GetServerGroup(r.Context(), int64(groupId))
+	if err != nil {
+		app.logger.Error("Error getting server group", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error getting server group"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(db)
+}
+
 func (app *application) addServerToGroup(w http.ResponseWriter, r *http.Request) {
 	var reqp repo.CreateServerParams
 	err := json.NewDecoder(r.Body).Decode(&reqp)

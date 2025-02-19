@@ -19,7 +19,7 @@ VALUES
 RETURNING *;
 
 -- name: GetServerGroup :one
-SELECT id, name, desc FROM server_groups WHERE name = ?;
+SELECT id, name, desc FROM server_groups WHERE id = ?;
 
 -- name: ListServerGroups :many
 SELECT id, name, desc FROM server_groups;

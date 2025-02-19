@@ -22,6 +22,10 @@ Content-Type: application/json
 GET {{baseUrl}}/api/v1/server-groups
 Content-Type: application/json
 
+### Get server group by id
+GET {{baseUrl}}/api/v1/server-groups/1
+Content-Type: application/json
+
 ### GET all servers by server group id
 GET {{baseUrl}}/api/v1/server-groups/1/servers
 Content-Type: application/json

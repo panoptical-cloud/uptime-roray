@@ -95,11 +95,11 @@ func (q *Queries) DeleteServerGroup(ctx context.Context, name string) error {
 }
 
 const getServerGroup = `-- name: GetServerGroup :one
-SELECT id, name, desc FROM server_groups WHERE name = ?
+SELECT id, name, desc FROM server_groups WHERE id = ?
 `
 
-func (q *Queries) GetServerGroup(ctx context.Context, name string) (ServerGroup, error) {
-	row := q.queryRow(ctx, q.getServerGroupStmt, getServerGroup, name)
+func (q *Queries) GetServerGroup(ctx context.Context, id int64) (ServerGroup, error) {
+	row := q.queryRow(ctx, q.getServerGroupStmt, getServerGroup, id)
 	var i ServerGroup
 	err := row.Scan(&i.ID, &i.Name, &i.Desc)
 	return i, err

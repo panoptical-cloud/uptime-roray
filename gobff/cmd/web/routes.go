@@ -15,6 +15,7 @@ func (app *application) routes() http.Handler {
 	// server groups routes
 	mux.HandleFunc("POST /api/v1/server-groups", httpReqLogger()(app, app.createServerGroup))
 	mux.HandleFunc("GET /api/v1/server-groups", httpReqLogger()(app, app.listServerGroups))
+	mux.HandleFunc("GET /api/v1/server-groups/{id}", httpReqLogger()(app, app.getServerGroup))
 	// add a server to a group
 	mux.HandleFunc("POST /api/v1/server-groups/servers", httpReqLogger()(app, app.addServerToGroup))
 	// list all servers in a group with id {id}
