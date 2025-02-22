@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"time"
 
+	natsServer "github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
 
@@ -28,13 +30,30 @@ type application struct {
 func main() {
 	// ctx := context.Background()
 
-	nc, err := nats.Connect("nats://199.241.138.81:4222")
+	// nc, err := nats.Connect("nats://199.241.138.81:4222")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer nc.Close()
+	// log.Println("Connected to 199.241.138.81:4222")
+
+	opts := &natsServer.Options{
+		Port: 4222,
+		// customize options as needed
+	}
+	ns, err := natsServer.NewServer(opts)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer nc.Close()
-	log.Println("Connected to 199.241.138.81:4222")
+	go ns.Start()
 
+	if !ns.ReadyForConnections(10 * time.Second) {
+		log.Fatal("Embedded NATS server not ready for connections")
+	}
+
+	log.Println("Embedded NATS server started on port", opts.Port)
+
+	nc, err := nats.Connect(ns.ClusterName())
 	nc.Subscribe("test.rpc", func(msg *nats.Msg) {
 
 		rcvData := &api.BaseStatsReply{}

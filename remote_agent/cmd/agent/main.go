@@ -19,12 +19,12 @@ const tickTime = 3      // In seconds
 const replyWaitTime = 3 // In seconds
 
 func main() {
-	nc, err := nats.Connect("nats://199.241.138.81:4222")
+	nc, err := nats.Connect("nats://localhost:4222")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer nc.Close()
-	log.Println("Connected to nats://199.241.138.81:4222")
+	log.Println("Connected to nats://localhost:4222")
 
 	for c := time.Tick(time.Duration(tickTime) * time.Second); ; <-c {
 
