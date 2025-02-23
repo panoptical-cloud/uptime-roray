@@ -266,7 +266,12 @@ func (app *application) verifyServerToken(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("true"))
+	retMsg := struct {
+		NatsUrl string `json:"natsUrl"`
+	}{
+		NatsUrl: app.natsServer.ClientURL(),
+	}
+	json.NewEncoder(w).Encode(retMsg)
 }
 
 func (app *application) getServerStatusEvents(w http.ResponseWriter, r *http.Request) {

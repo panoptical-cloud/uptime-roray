@@ -22,6 +22,7 @@ import (
 type application struct {
 	logger *slog.Logger
 	repo   *repo.Queries
+	natsServer *natsServer.Server
 	// sm *scs.SessionManager
 	// siteUserSvc    *svc.SiteAndUserSvc
 	// siteBrokerConn *nats.Conn
@@ -53,7 +54,7 @@ func main() {
 
 	log.Println("Embedded NATS server started on port", opts.Port)
 
-	nc, err := nats.Connect(ns.ClusterName())
+	nc, err := nats.Connect(ns.ClientURL())
 	nc.Subscribe("test.rpc", func(msg *nats.Msg) {
 
 		rcvData := &api.BaseStatsReply{}
@@ -89,6 +90,7 @@ func main() {
 	app := &application{
 		logger: initLogger(*logL),
 		repo:   queries,
+		natsServer: ns,
 		// sm: initSessionMgr("sqlite", *dsn),
 	}
 

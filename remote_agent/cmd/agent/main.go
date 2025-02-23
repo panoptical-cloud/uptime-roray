@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"pc-uptime/agent/api"
 	"pc-uptime/agent/utils"
 	"time"
@@ -34,39 +33,11 @@ func main() {
 
 					fmt.Print("Enter Registration URL: ")
 					fmt.Scanln(&registrationUrl)
-
-					// TODO: Implement registration logic here
-					// Send the serverURL and registrationToken to the server
-					// and handle the response.  This is a placeholder.
 					fmt.Printf("Registering with server using : %s\n", registrationUrl)
-
-					utils.RegisterWithServer(registrationUrl)
-
-					// For now, just save the server URL and token to a file
-					// Replace this with actual registration logic
-					configFile := "/agent.conf"
-					homeDir, err := os.UserHomeDir()
+					err := utils.RegisterWithServer(registrationUrl)
 					if err != nil {
-						return fmt.Errorf("failed to get user home directory: %w", err)
+						log.Fatal(err)
 					}
-
-					rorayHomePath := filepath.Join(homeDir, ".roray_panmon")
-					err = os.MkdirAll(rorayHomePath, 0755)
-					if err != nil {
-						return fmt.Errorf("failed to create roray_panmon directory: %w", err)
-					}
-
-					file, err := os.Create(rorayHomePath + configFile)
-					if err != nil {
-						return fmt.Errorf("failed to create config file: %w", err)
-					}
-					defer file.Close()
-
-					_, err = file.WriteString(fmt.Sprintf("registration_url=%s\n", registrationUrl))
-					if err != nil {
-						return fmt.Errorf("failed to write to config file: %w", err)
-					}
-					fmt.Printf("Registration details saved to %s\n", configFile)
 					return nil
 				},
 			},
