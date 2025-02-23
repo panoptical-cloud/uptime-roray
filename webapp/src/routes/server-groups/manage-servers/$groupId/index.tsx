@@ -16,38 +16,26 @@ import {
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
+import type { Server, ServerGroup } from '@/components/types/ServerGroup'
+
 export const Route = createFileRoute('/server-groups/manage-servers/$groupId/')(
   {
     component: RouteComponent,
   },
 )
 
-export type Server = {
-  id: string
-  name: string
-  hostname: string
-  ip: string
-  agent_port: number
-  agent_version: string
-}
-
-export type ServerGroup = {
-  id: number
-  name: string
-  desc: string
-}
-
 function RouteComponent() {
+  const { groupId } = Route.useParams()
+  
   const [servers, setServers] = useState<Server[]>([])
   const [serverGroup, setServerGroup] = useState<ServerGroup>({
     id: -1,
     name: '',
     desc: '',
   })
-  const { groupId } = Route.useParams()
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       const serverGroup = await fetch(`/api/v1/server-groups/${groupId}`)
       const serverGroupData = await serverGroup.json()
       console.table(serverGroupData)

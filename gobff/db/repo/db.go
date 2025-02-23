@@ -36,6 +36,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteServerGroupStmt, err = db.PrepareContext(ctx, deleteServerGroup); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteServerGroup: %w", err)
 	}
+	if q.getOneTimeTokenForServerRegistrationStmt, err = db.PrepareContext(ctx, getOneTimeTokenForServerRegistration); err != nil {
+		return nil, fmt.Errorf("error preparing query GetOneTimeTokenForServerRegistration: %w", err)
+	}
+	if q.getServerByGidSidStmt, err = db.PrepareContext(ctx, getServerByGidSid); err != nil {
+		return nil, fmt.Errorf("error preparing query GetServerByGidSid: %w", err)
+	}
 	if q.getServerGroupStmt, err = db.PrepareContext(ctx, getServerGroup); err != nil {
 		return nil, fmt.Errorf("error preparing query GetServerGroup: %w", err)
 	}
@@ -50,6 +56,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.listServersByGroupStmt, err = db.PrepareContext(ctx, listServersByGroup); err != nil {
 		return nil, fmt.Errorf("error preparing query ListServersByGroup: %w", err)
+	}
+	if q.updateOneTimeTokenForServerRegistrationStmt, err = db.PrepareContext(ctx, updateOneTimeTokenForServerRegistration); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateOneTimeTokenForServerRegistration: %w", err)
 	}
 	return &q, nil
 }
@@ -76,6 +85,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteServerGroupStmt: %w", cerr)
 		}
 	}
+	if q.getOneTimeTokenForServerRegistrationStmt != nil {
+		if cerr := q.getOneTimeTokenForServerRegistrationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getOneTimeTokenForServerRegistrationStmt: %w", cerr)
+		}
+	}
+	if q.getServerByGidSidStmt != nil {
+		if cerr := q.getServerByGidSidStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getServerByGidSidStmt: %w", cerr)
+		}
+	}
 	if q.getServerGroupStmt != nil {
 		if cerr := q.getServerGroupStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getServerGroupStmt: %w", cerr)
@@ -99,6 +118,11 @@ func (q *Queries) Close() error {
 	if q.listServersByGroupStmt != nil {
 		if cerr := q.listServersByGroupStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listServersByGroupStmt: %w", cerr)
+		}
+	}
+	if q.updateOneTimeTokenForServerRegistrationStmt != nil {
+		if cerr := q.updateOneTimeTokenForServerRegistrationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateOneTimeTokenForServerRegistrationStmt: %w", cerr)
 		}
 	}
 	return err
@@ -138,31 +162,37 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                     DBTX
-	tx                     *sql.Tx
-	createServerStmt       *sql.Stmt
-	createServerGroupStmt  *sql.Stmt
-	createServerPortStmt   *sql.Stmt
-	deleteServerGroupStmt  *sql.Stmt
-	getServerGroupStmt     *sql.Stmt
-	getServerPortStmt      *sql.Stmt
-	listServerGroupsStmt   *sql.Stmt
-	listServerPortsStmt    *sql.Stmt
-	listServersByGroupStmt *sql.Stmt
+	db                                          DBTX
+	tx                                          *sql.Tx
+	createServerStmt                            *sql.Stmt
+	createServerGroupStmt                       *sql.Stmt
+	createServerPortStmt                        *sql.Stmt
+	deleteServerGroupStmt                       *sql.Stmt
+	getOneTimeTokenForServerRegistrationStmt    *sql.Stmt
+	getServerByGidSidStmt                       *sql.Stmt
+	getServerGroupStmt                          *sql.Stmt
+	getServerPortStmt                           *sql.Stmt
+	listServerGroupsStmt                        *sql.Stmt
+	listServerPortsStmt                         *sql.Stmt
+	listServersByGroupStmt                      *sql.Stmt
+	updateOneTimeTokenForServerRegistrationStmt *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                     tx,
-		tx:                     tx,
-		createServerStmt:       q.createServerStmt,
-		createServerGroupStmt:  q.createServerGroupStmt,
-		createServerPortStmt:   q.createServerPortStmt,
-		deleteServerGroupStmt:  q.deleteServerGroupStmt,
-		getServerGroupStmt:     q.getServerGroupStmt,
-		getServerPortStmt:      q.getServerPortStmt,
-		listServerGroupsStmt:   q.listServerGroupsStmt,
-		listServerPortsStmt:    q.listServerPortsStmt,
-		listServersByGroupStmt: q.listServersByGroupStmt,
+		db:                                       tx,
+		tx:                                       tx,
+		createServerStmt:                         q.createServerStmt,
+		createServerGroupStmt:                    q.createServerGroupStmt,
+		createServerPortStmt:                     q.createServerPortStmt,
+		deleteServerGroupStmt:                    q.deleteServerGroupStmt,
+		getOneTimeTokenForServerRegistrationStmt: q.getOneTimeTokenForServerRegistrationStmt,
+		getServerByGidSidStmt:                    q.getServerByGidSidStmt,
+		getServerGroupStmt:                       q.getServerGroupStmt,
+		getServerPortStmt:                        q.getServerPortStmt,
+		listServerGroupsStmt:                     q.listServerGroupsStmt,
+		listServerPortsStmt:                      q.listServerPortsStmt,
+		listServersByGroupStmt:                   q.listServersByGroupStmt,
+		updateOneTimeTokenForServerRegistrationStmt: q.updateOneTimeTokenForServerRegistrationStmt,
 	}
 }

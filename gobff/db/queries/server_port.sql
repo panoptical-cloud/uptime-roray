@@ -36,3 +36,12 @@ RETURNING *;
 
 -- name: ListServersByGroup :many
 SELECT * FROM servers WHERE group_id = ?;
+
+-- name: GetServerByGidSid :one
+SELECT * FROM servers WHERE group_id = ? AND id = ?;
+
+-- name: UpdateOneTimeTokenForServerRegistration :exec
+UPDATE servers SET one_time_token = ? WHERE id = ?;
+
+-- name: GetOneTimeTokenForServerRegistration :one
+SELECT one_time_token FROM servers WHERE id = ?;

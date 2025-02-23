@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"pc-uptime/bff/db/repo"
@@ -164,6 +165,108 @@ func (app *application) listServersByGroup(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) getServerById(w http.ResponseWriter, r *http.Request) {
+	_groupId := r.PathValue("gid")
+	_serverId := r.PathValue("sid")
+	groupId, err := strconv.Atoi(_groupId)
+	if err != nil {
+		app.logger.Error("Error converting group id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting group id to int"))
+		return
+	}
+	serverId, err := strconv.Atoi(_serverId)
+	if err != nil {
+		app.logger.Error("Error converting server id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting server id to int"))
+		return
+	}
+	db, err := app.repo.GetServerByGidSid(r.Context(), repo.GetServerByGidSidParams{
+		GroupID: int64(groupId),
+		ID:      int64(serverId),
+	})
+
+	if err != nil {
+		app.logger.Error("Error getting server by id", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error getting server by id"))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) generateServerToken(w http.ResponseWriter, r *http.Request) {
+	_serverId := r.PathValue("sid")
+	serverId, err := strconv.Atoi(_serverId)
+	if err != nil {
+		app.logger.Error("Error converting server id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting server id to int"))
+		return
+	}
+
+	key := make([]byte, 10)
+	_, err = rand.Read(key)
+	if err != nil {
+		app.logger.Error("Error generating random key", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error generating random key"))
+		return
+	}
+	token := fmt.Sprintf("%x", key)
+
+	// Save the key in the database
+	err = app.repo.UpdateOneTimeTokenForServerRegistration(r.Context(), repo.UpdateOneTimeTokenForServerRegistrationParams{
+		ID:           int64(serverId),
+		OneTimeToken: &token,
+	})
+	if err != nil {
+		app.logger.Error("Error saving one time token", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error saving one time token"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func (app *application) verifyServerToken(w http.ResponseWriter, r *http.Request) {
+	incomingToken := r.PathValue("token")
+	_serverId := r.PathValue("sid")
+	serverId, err := strconv.Atoi(_serverId)
+	if err != nil {
+		app.logger.Error("Error converting server id to int", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error converting server id to int"))
+		return
+	}
+
+	db, err := app.repo.GetOneTimeTokenForServerRegistration(r.Context(), int64(serverId))
+	if err != nil {
+		app.logger.Error("Error verifying token", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error verifying token"))
+		return
+	}
+
+	// Verify the token
+	if *db != incomingToken {
+		app.logger.Error("Invalid token", "error", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Invalid token"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("true"))
 }
 
 func (app *application) getServerStatusEvents(w http.ResponseWriter, r *http.Request) {

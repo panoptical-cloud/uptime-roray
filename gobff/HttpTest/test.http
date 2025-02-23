@@ -40,3 +40,19 @@ Content-Type: application/json
     "ip":"1.2.33.41",
     "group_id":1
 }
+
+### Get server by group id and server id
+GET {{baseUrl}}/api/v1/server-groups/1/servers/1
+Content-Type: application/json
+
+### Generate one time registration token for a new server
+GET {{baseUrl}}/api/v1/server/1/regtoken
+Content-Type: application/json
+
+### Verify server registration token
+POST {{baseUrl}}/api/v1/server/1/verifytoken
+Content-Type: application/json
+
+{
+    "token":"e2e402d9e3b9eb240b5d"
+}

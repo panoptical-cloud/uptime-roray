@@ -14,7 +14,7 @@ INSERT INTO servers
     (name, hostname, ip, group_id)
 VALUES
     (?, ?, ?, ?)
-RETURNING id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token
+RETURNING id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry
 `
 
 type CreateServerParams struct {
@@ -41,6 +41,7 @@ func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (Ser
 		&i.AgentVersion,
 		&i.GroupID,
 		&i.OneTimeToken,
+		&i.OneTimeTokenExpiry,
 	)
 	return i, err
 }
@@ -92,6 +93,43 @@ DELETE FROM server_groups WHERE name = ?
 func (q *Queries) DeleteServerGroup(ctx context.Context, name string) error {
 	_, err := q.exec(ctx, q.deleteServerGroupStmt, deleteServerGroup, name)
 	return err
+}
+
+const getOneTimeTokenForServerRegistration = `-- name: GetOneTimeTokenForServerRegistration :one
+SELECT one_time_token FROM servers WHERE id = ?
+`
+
+func (q *Queries) GetOneTimeTokenForServerRegistration(ctx context.Context, id int64) (*string, error) {
+	row := q.queryRow(ctx, q.getOneTimeTokenForServerRegistrationStmt, getOneTimeTokenForServerRegistration, id)
+	var one_time_token *string
+	err := row.Scan(&one_time_token)
+	return one_time_token, err
+}
+
+const getServerByGidSid = `-- name: GetServerByGidSid :one
+SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry FROM servers WHERE group_id = ? AND id = ?
+`
+
+type GetServerByGidSidParams struct {
+	GroupID int64 `json:"group_id"`
+	ID      int64 `json:"id"`
+}
+
+func (q *Queries) GetServerByGidSid(ctx context.Context, arg GetServerByGidSidParams) (Server, error) {
+	row := q.queryRow(ctx, q.getServerByGidSidStmt, getServerByGidSid, arg.GroupID, arg.ID)
+	var i Server
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Hostname,
+		&i.Ip,
+		&i.AgentPort,
+		&i.AgentVersion,
+		&i.GroupID,
+		&i.OneTimeToken,
+		&i.OneTimeTokenExpiry,
+	)
+	return i, err
 }
 
 const getServerGroup = `-- name: GetServerGroup :one
@@ -176,7 +214,7 @@ func (q *Queries) ListServerPorts(ctx context.Context) ([]ServerPort, error) {
 }
 
 const listServersByGroup = `-- name: ListServersByGroup :many
-SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token FROM servers WHERE group_id = ?
+SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry FROM servers WHERE group_id = ?
 `
 
 func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Server, error) {
@@ -197,6 +235,7 @@ func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Serv
 			&i.AgentVersion,
 			&i.GroupID,
 			&i.OneTimeToken,
+			&i.OneTimeTokenExpiry,
 		); err != nil {
 			return nil, err
 		}
@@ -209,4 +248,18 @@ func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Serv
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateOneTimeTokenForServerRegistration = `-- name: UpdateOneTimeTokenForServerRegistration :exec
+UPDATE servers SET one_time_token = ? WHERE id = ?
+`
+
+type UpdateOneTimeTokenForServerRegistrationParams struct {
+	OneTimeToken *string `json:"one_time_token"`
+	ID           int64   `json:"id"`
+}
+
+func (q *Queries) UpdateOneTimeTokenForServerRegistration(ctx context.Context, arg UpdateOneTimeTokenForServerRegistrationParams) error {
+	_, err := q.exec(ctx, q.updateOneTimeTokenForServerRegistrationStmt, updateOneTimeTokenForServerRegistration, arg.OneTimeToken, arg.ID)
+	return err
 }
