@@ -1,0 +1,17 @@
+{
+  "folders": [
+	{
+		"path": "webapp"
+	},
+	{
+		"path": "gobff"
+	},
+	{
+		"path": "remote_agent"
+	},
+	{
+		"path": "proto"
+	}
+],
+  "settings": {}
+}

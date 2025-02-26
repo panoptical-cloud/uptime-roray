@@ -81,8 +81,8 @@ func main() {
 
 				// SEND
 				// NATS - REQUEST & REPLY on "test.rpc" (THE PIPE)
-				log.Printf("   Send request msg to subject 'test.rpc'\n")
-				_, err = nc.Request("test.rpc", msg, replyWaitTime*time.Second)
+				log.Printf("   Send request msg to subject 'agent.localhost.metrics.basic'\n")
+				_, err = nc.Request("agent.localhost.metrics.basic", msg, replyWaitTime*time.Second)
 				if err != nil {
 					log.Println(err)
 				}

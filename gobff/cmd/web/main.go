@@ -20,8 +20,8 @@ import (
 )
 
 type application struct {
-	logger *slog.Logger
-	repo   *repo.Queries
+	logger     *slog.Logger
+	repo       *repo.Queries
 	natsServer *natsServer.Server
 	// sm *scs.SessionManager
 	// siteUserSvc    *svc.SiteAndUserSvc
@@ -55,7 +55,7 @@ func main() {
 	log.Println("Embedded NATS server started on port", opts.Port)
 
 	nc, err := nats.Connect(ns.ClientURL())
-	nc.Subscribe("test.rpc", func(msg *nats.Msg) {
+	nc.Subscribe("agent.*.metrics.basic", func(msg *nats.Msg) {
 
 		rcvData := &api.BaseStatsReply{}
 		err = proto.Unmarshal(msg.Data, rcvData)
@@ -88,8 +88,8 @@ func main() {
 	queries := repo.New(db)
 
 	app := &application{
-		logger: initLogger(*logL),
-		repo:   queries,
+		logger:     initLogger(*logL),
+		repo:       queries,
 		natsServer: ns,
 		// sm: initSessionMgr("sqlite", *dsn),
 	}
@@ -100,6 +100,7 @@ func main() {
 	}
 
 	app.logger.Info("Starting server on", slog.String("addr", *addr))
+	app.logger.Debug("Started server on", slog.String("addr", "http://localhost"+*addr))
 	err = srv.ListenAndServe()
 	log.Fatal(err)
 }
