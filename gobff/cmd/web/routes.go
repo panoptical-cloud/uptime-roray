@@ -35,7 +35,7 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /api/v1/server/{sid}/regtoken", httpReqLogger()(app, app.generateServerToken))
 
 	// verify server registration token
-	mux.HandleFunc("GET /api/v1/server/{sid}/verifytoken/{token}", httpReqLogger()(app, app.verifyServerToken))
+	mux.HandleFunc("POST /api/v1/server/{sid}/verifytoken/{token}", httpReqLogger()(app, app.verifyServerToken))
 	// END: server groups routes
 
 	return mux

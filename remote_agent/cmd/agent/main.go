@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"pc-uptime/agent/api"
 	"pc-uptime/agent/utils"
@@ -10,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/mem"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -25,9 +27,8 @@ func main() {
 		Usage: "Collects and sends system metrics",
 		Commands: []*cli.Command{
 			{
-				Name:    "register",
-				Aliases: []string{"r"},
-				Usage:   "Register the agent with the central server",
+				Name:  "register",
+				Usage: "Register the agent with the central server",
 				Action: func(c *cli.Context) error {
 					var registrationUrl string
 
@@ -38,6 +39,64 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
+					return nil
+				},
+			},
+			{
+				Name:  "host",
+				Usage: "Show host information",
+				Action: func(c *cli.Context) error {
+					hostInfo, err := host.Info()
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					fmt.Printf("Hostname: %s\n", hostInfo.Hostname)
+					fmt.Printf("Host ID: %s\n", hostInfo.HostID)
+					fmt.Printf("OS: %s\n", hostInfo.OS)
+					fmt.Printf("Platform: %s %s\n", hostInfo.Platform, hostInfo.PlatformVersion)
+					fmt.Printf("Kernel Version: %s\n", hostInfo.KernelVersion)
+					fmt.Printf("Uptime: %d seconds\n", hostInfo.Uptime)
+
+					// Format boot time into a readable date
+					bootTime := time.Unix(int64(hostInfo.BootTime), 0)
+					fmt.Printf("Boot Time: %s\n", bootTime.Format(time.RFC1123))
+
+					// Show virtualization info if available
+					if hostInfo.VirtualizationSystem != "" {
+						fmt.Printf("Virtualization: %s (%s)\n",
+							hostInfo.VirtualizationSystem,
+							hostInfo.VirtualizationRole)
+					}
+
+					// Get and display IP addresses
+					interfaces, err := net.Interfaces()
+					if err != nil {
+						fmt.Printf("Error getting network interfaces: %v\n", err)
+					} else {
+						fmt.Println("\nIP Addresses:")
+						for _, i := range interfaces {
+							addrs, err := i.Addrs()
+							if err != nil {
+								fmt.Printf("  Error getting addresses for interface %s: %v\n", i.Name, err)
+								continue
+							}
+							for _, addr := range addrs {
+								var ip net.IP
+								switch v := addr.(type) {
+								case *net.IPNet:
+									ip = v.IP
+								case *net.IPAddr:
+									ip = v.IP
+								}
+								// Filter out loopback addresses
+								if !ip.IsLoopback() {
+									fmt.Printf("  %s: %s\n", i.Name, ip.String())
+								}
+							}
+						}
+					}
+
 					return nil
 				},
 			},

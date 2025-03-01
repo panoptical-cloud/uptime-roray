@@ -50,9 +50,11 @@ GET {{baseUrl}}/api/v1/server/1/regtoken
 Content-Type: application/json
 
 ### Verify server registration token
-POST {{baseUrl}}/api/v1/server/1/verifytoken
+POST {{baseUrl}}/api/v1/server/1/verifytoken/e2e402d9e3b9eb240b5d
 Content-Type: application/json
 
 {
-    "token":"e2e402d9e3b9eb240b5d"
+    "version":"1.0.0",
+    "ip":"1.1.1.1",
+    "machine_id":"<etc/uuid>"
 }

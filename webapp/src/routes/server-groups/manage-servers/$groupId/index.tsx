@@ -17,6 +17,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 import type { Server, ServerGroup } from '@/components/types/ServerGroup'
+import { Badge } from '@/components/ui/badge'
 
 export const Route = createFileRoute('/server-groups/manage-servers/$groupId/')(
   {
@@ -26,7 +27,7 @@ export const Route = createFileRoute('/server-groups/manage-servers/$groupId/')(
 
 function RouteComponent() {
   const { groupId } = Route.useParams()
-  
+
   const [servers, setServers] = useState<Server[]>([])
   const [serverGroup, setServerGroup] = useState<ServerGroup>({
     id: -1,
@@ -77,19 +78,52 @@ function RouteComponent() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Hostname</TableHead>
-              <TableHead>IP</TableHead>
-              <TableHead>Agent Port</TableHead>
-              <TableHead>Agent Version</TableHead>
+              <TableHead>Registration Status</TableHead>
+              <TableHead>Agent</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
+            <TableRow key="sample_entry">
+              <TableCell className="py-2 px-4">
+                Sample Server
+                <p className="text-xs text-muted-foreground pt-1">
+                  This is description of the server
+                </p>
+              </TableCell>
+              <TableCell className="py-2 px-4">
+                www.abc.com
+                <p className="text-xs text-muted-foreground pt-1">
+                  IP: 12.23.43.11
+                </p>
+              </TableCell>
+              <TableCell className="py-2 px-4">
+                <p className='mb-1 pl-7'>NEW</p>
+                <Button
+                  className="w-28 font-extralight text-blue-600 underline underline-offset-4"
+                  size={'xs'}
+                  variant={'ghost'}
+                >
+                  Generate Token
+                </Button>
+              </TableCell>
+              <TableCell className="py-2 px-4">
+                <Badge
+                  variant='outline'
+                  className="bg-green-300 text-green-900"
+                >
+                  Online
+                </Badge>
+                <p className="text-xs text-muted-foreground pt-1 pl-2">
+                  v: 1.2.3
+                </p>
+              </TableCell>
+
+            </TableRow>
             {servers.map((server) => (
               <TableRow key={server.id}>
                 <TableCell className="py-2 px-4">{server.name}</TableCell>
                 <TableCell className="py-2 px-4">{server.hostname}</TableCell>
-                <TableCell className="py-2 px-4">{server.ip}</TableCell>
-                <TableCell className="py-2 px-4">{server.agent_port}</TableCell>
                 <TableCell className="py-2 px-4">
                   {server.agent_version}
                 </TableCell>

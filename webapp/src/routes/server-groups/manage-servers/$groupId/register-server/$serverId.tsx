@@ -11,7 +11,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
     const { groupId, serverId } = Route.useParams()
-const [token, setToken] = useState<string>('')
+    const [token, setToken] = useState<string>('')
+    const [showToken, setShowToken] = useState<boolean>(false)
 
     const [server, setServer] = useState<Server>({
         id: '',
@@ -46,10 +47,30 @@ const [token, setToken] = useState<string>('')
                 className="w-36 bg-blue-500 hover:bg-blue-700 text-white ml-8"
                 size={'sm'}
                 variant={'outline'}
+                onClick={async () => {
+                    const tokenResp = await fetch(`/api/v1/server/${serverId}/regtoken`)
+                    const _tokenData = await tokenResp.json()
+                    const tokenData = _tokenData.token
+                    const tokenURL = window.location.origin + `/api/v1/server/${serverId}/verifytoken/${tokenData}`
+                    console.log(tokenURL)
+                    setToken(tokenURL)
+                    setShowToken(true)
+                }}
             >
                 Generate Token
             </Button>
-
+            {
+                showToken && (
+                    <div className="m-8 bg-muted/50 rounded-xl p-8">
+                        <h4 className="pb-2 text-lg font-medium">
+                            Registration URL: {token}
+                        </h4>
+                        <h6>
+                            Enter the entire URL on the client
+                        </h6>
+                    </div>
+                )
+            }
         </>
     )
 }
