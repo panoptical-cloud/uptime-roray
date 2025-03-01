@@ -42,98 +42,98 @@ const data = {
       plan: "Startup",
     },
     {
-      name: "Evil Corp.",
+      name: "Myra Corp.",
       logo: Command,
       plan: "Free",
     },
   ],
-  navServers: [
-    {
-      title: "QA-App1-Svc1",
-      url: "#",
-      icon: Server,
-      isActive: true,
-      items: [
-        {
-          title: "Overview",
-          url: "/server-groups",
-        },
-        {
-          title: "Incidents",
-          url: "#",
-        },
-        {
-          title: "Manage Servers",
-          url: "/server-groups/manage-servers",
-        },
-      ],
-    },
-    {
-      title: "Prod-App1-Svc1",
-      url: "#",
-      icon: Server,
-      items: [
-        {
-          title: "Overview",
-          url: "/servers/overview",
-        },
-        {
-          title: "Incidents",
-          url: "#",
-        },
-        {
-          title: "Manage Servers",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
+  // navServers: [
+  //   {
+  //     title: "QA-App1-Svc1",
+  //     url: "#",
+  //     icon: Server,
+  //     isActive: true,
+  //     items: [
+  //       {
+  //         title: "Overview",
+  //         url: "/server-groups",
+  //       },
+  //       {
+  //         title: "Incidents",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Manage Servers",
+  //         url: "/server-groups/manage-servers",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Prod-App1-Svc1",
+  //     url: "#",
+  //     icon: Server,
+  //     items: [
+  //       {
+  //         title: "Overview",
+  //         url: "/servers/overview",
+  //       },
+  //       {
+  //         title: "Incidents",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Manage Servers",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Documentation",
+  //     url: "#",
+  //     icon: BookOpen,
+  //     items: [
+  //       {
+  //         title: "Introduction",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Get Started",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Tutorials",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Changelog",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Settings",
+  //     url: "#",
+  //     icon: Settings2,
+  //     items: [
+  //       {
+  //         title: "General",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Team",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Billing",
+  //         url: "#",
+  //       },
+  //       {
+  //         title: "Limits",
+  //         url: "#",
+  //       },
+  //     ],
+  //   },
+  // ],
   projects: [
     {
       name: "Design Engineering",
@@ -172,7 +172,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "#",
         }, {
           title: "Manage Servers",
-          url: `/server-groups/manage-servers/${k.id}`,
+          url: `/server-groups/${k.id}/manage-servers`,
         })
       })
       // console.table(qr)
