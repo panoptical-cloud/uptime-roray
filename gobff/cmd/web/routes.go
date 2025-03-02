@@ -12,6 +12,10 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /api/v1/events/server-status", httpReqLogger()(app, app.getServerStatusEvents))
 	// mux.HandleFunc("GET /api/v1/server-port", httpReqLogger()(app, app.getServerPort))
 
+	// START: utility routes
+	mux.HandleFunc("POST /api/v1/utils/ip-by-host", httpReqLogger()(app, app.getIpFromHost))
+	// END: utility routes
+
 	// START: server groups routes
 	// Add new server group
 	mux.HandleFunc("POST /api/v1/server-groups", httpReqLogger()(app, app.createServerGroup))
@@ -32,10 +36,11 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /api/v1/server-groups/{gid}/servers/{sid}", httpReqLogger()(app, app.getServerById))
 
 	// generate one time registration token for a new server
-	mux.HandleFunc("GET /api/v1/server/{sid}/regtoken", httpReqLogger()(app, app.generateServerToken))
+	mux.HandleFunc("GET /api/v1/server-groups/{gid}/servers/{sid}/regtoken", httpReqLogger()(app, app.generateServerToken))
 
 	// verify server registration token
 	mux.HandleFunc("POST /api/v1/server/{sid}/verifytoken/{token}", httpReqLogger()(app, app.verifyServerToken))
+
 	// END: server groups routes
 
 	return mux

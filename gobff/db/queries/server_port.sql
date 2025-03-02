@@ -29,10 +29,10 @@ DELETE FROM server_groups WHERE name = ?;
 
 -- name: CreateServer :one
 INSERT INTO servers 
-    (name, hostname, ip, group_id)
+    (id, name, ip, group_id, reg_status)
 VALUES
-    (?, ?, ?, ?)
-RETURNING *;
+    (?, ?, ?, ?, 'NEW')
+RETURNING id;
 
 -- name: ListServersByGroup :many
 SELECT * FROM servers WHERE group_id = ?;
@@ -41,7 +41,7 @@ SELECT * FROM servers WHERE group_id = ?;
 SELECT * FROM servers WHERE group_id = ? AND id = ?;
 
 -- name: UpdateOneTimeTokenForServerRegistration :exec
-UPDATE servers SET one_time_token = ? WHERE id = ?;
+UPDATE servers SET one_time_token = ?, reg_status = 'PENDING' WHERE id = ?;
 
 -- name: GetOneTimeTokenForServerRegistration :one
 SELECT one_time_token FROM servers WHERE id = ?;

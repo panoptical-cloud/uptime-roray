@@ -11,39 +11,29 @@ import (
 
 const createServer = `-- name: CreateServer :one
 INSERT INTO servers 
-    (name, hostname, ip, group_id)
+    (id, name, ip, group_id, reg_status)
 VALUES
-    (?, ?, ?, ?)
-RETURNING id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry
+    (?, ?, ?, ?, 'NEW')
+RETURNING id
 `
 
 type CreateServerParams struct {
-	Name     string  `json:"name"`
-	Hostname string  `json:"hostname"`
-	Ip       *string `json:"ip"`
-	GroupID  int64   `json:"group_id"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Ip      string `json:"ip"`
+	GroupID int64  `json:"group_id"`
 }
 
-func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (Server, error) {
+func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (string, error) {
 	row := q.queryRow(ctx, q.createServerStmt, createServer,
+		arg.ID,
 		arg.Name,
-		arg.Hostname,
 		arg.Ip,
 		arg.GroupID,
 	)
-	var i Server
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Hostname,
-		&i.Ip,
-		&i.AgentPort,
-		&i.AgentVersion,
-		&i.GroupID,
-		&i.OneTimeToken,
-		&i.OneTimeTokenExpiry,
-	)
-	return i, err
+	var id string
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createServerGroup = `-- name: CreateServerGroup :one
@@ -99,7 +89,7 @@ const getOneTimeTokenForServerRegistration = `-- name: GetOneTimeTokenForServerR
 SELECT one_time_token FROM servers WHERE id = ?
 `
 
-func (q *Queries) GetOneTimeTokenForServerRegistration(ctx context.Context, id int64) (*string, error) {
+func (q *Queries) GetOneTimeTokenForServerRegistration(ctx context.Context, id string) (*string, error) {
 	row := q.queryRow(ctx, q.getOneTimeTokenForServerRegistrationStmt, getOneTimeTokenForServerRegistration, id)
 	var one_time_token *string
 	err := row.Scan(&one_time_token)
@@ -107,12 +97,12 @@ func (q *Queries) GetOneTimeTokenForServerRegistration(ctx context.Context, id i
 }
 
 const getServerByGidSid = `-- name: GetServerByGidSid :one
-SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry FROM servers WHERE group_id = ? AND id = ?
+SELECT id, group_id, ip, mac, reg_status, one_time_token, one_time_token_expiry, name, "desc", fqdn, agent_version, os, arch, nats_subject, monit_enabled, notifs_enabled FROM servers WHERE group_id = ? AND id = ?
 `
 
 type GetServerByGidSidParams struct {
-	GroupID int64 `json:"group_id"`
-	ID      int64 `json:"id"`
+	GroupID int64  `json:"group_id"`
+	ID      string `json:"id"`
 }
 
 func (q *Queries) GetServerByGidSid(ctx context.Context, arg GetServerByGidSidParams) (Server, error) {
@@ -120,14 +110,21 @@ func (q *Queries) GetServerByGidSid(ctx context.Context, arg GetServerByGidSidPa
 	var i Server
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Hostname,
-		&i.Ip,
-		&i.AgentPort,
-		&i.AgentVersion,
 		&i.GroupID,
+		&i.Ip,
+		&i.Mac,
+		&i.RegStatus,
 		&i.OneTimeToken,
 		&i.OneTimeTokenExpiry,
+		&i.Name,
+		&i.Desc,
+		&i.Fqdn,
+		&i.AgentVersion,
+		&i.Os,
+		&i.Arch,
+		&i.NatsSubject,
+		&i.MonitEnabled,
+		&i.NotifsEnabled,
 	)
 	return i, err
 }
@@ -214,7 +211,7 @@ func (q *Queries) ListServerPorts(ctx context.Context) ([]ServerPort, error) {
 }
 
 const listServersByGroup = `-- name: ListServersByGroup :many
-SELECT id, name, hostname, ip, agent_port, agent_version, group_id, one_time_token, one_time_token_expiry FROM servers WHERE group_id = ?
+SELECT id, group_id, ip, mac, reg_status, one_time_token, one_time_token_expiry, name, "desc", fqdn, agent_version, os, arch, nats_subject, monit_enabled, notifs_enabled FROM servers WHERE group_id = ?
 `
 
 func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Server, error) {
@@ -228,14 +225,21 @@ func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Serv
 		var i Server
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
-			&i.Hostname,
-			&i.Ip,
-			&i.AgentPort,
-			&i.AgentVersion,
 			&i.GroupID,
+			&i.Ip,
+			&i.Mac,
+			&i.RegStatus,
 			&i.OneTimeToken,
 			&i.OneTimeTokenExpiry,
+			&i.Name,
+			&i.Desc,
+			&i.Fqdn,
+			&i.AgentVersion,
+			&i.Os,
+			&i.Arch,
+			&i.NatsSubject,
+			&i.MonitEnabled,
+			&i.NotifsEnabled,
 		); err != nil {
 			return nil, err
 		}
@@ -251,12 +255,12 @@ func (q *Queries) ListServersByGroup(ctx context.Context, groupID int64) ([]Serv
 }
 
 const updateOneTimeTokenForServerRegistration = `-- name: UpdateOneTimeTokenForServerRegistration :exec
-UPDATE servers SET one_time_token = ? WHERE id = ?
+UPDATE servers SET one_time_token = ?, reg_status = 'PENDING' WHERE id = ?
 `
 
 type UpdateOneTimeTokenForServerRegistrationParams struct {
 	OneTimeToken *string `json:"one_time_token"`
-	ID           int64   `json:"id"`
+	ID           string  `json:"id"`
 }
 
 func (q *Queries) UpdateOneTimeTokenForServerRegistration(ctx context.Context, arg UpdateOneTimeTokenForServerRegistrationParams) error {

@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 import type { Server, ServerGroup } from '@/components/types/ServerGroup'
@@ -28,6 +28,7 @@ export const Route = createFileRoute('/server-groups/$groupId/manage-servers/')(
 function RouteComponent() {
   const { groupId } = Route.useParams()
 
+  const navigate = useNavigate();
   const [servers, setServers] = useState<Server[]>([])
   const [serverGroup, setServerGroup] = useState<ServerGroup>({
     id: -1,
@@ -77,7 +78,7 @@ function RouteComponent() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Hostname</TableHead>
+              <TableHead>Host</TableHead>
               <TableHead>Registration Status</TableHead>
               <TableHead>Agent</TableHead>
               <TableHead>Actions</TableHead>
@@ -121,8 +122,33 @@ function RouteComponent() {
             </TableRow>
             {servers.map((server) => (
               <TableRow key={server.id}>
-                <TableCell className="py-2 px-4">{server.name}</TableCell>
-                <TableCell className="py-2 px-4">{server.hostname}</TableCell>
+                <TableCell className="py-2 px-4">
+                  {server.name}
+                  <p className="text-xs text-muted-foreground pt-1">
+                    {server.desc}
+                  </p>
+                </TableCell>
+                <TableCell className="py-2 px-4">
+                  {server.fqdn}
+                  <p className="text-xs text-muted-foreground pt-1">
+                    IP: {server.ip}
+                  </p>
+                </TableCell>
+                <TableCell className="py-2 px-4">
+                  <p className="mb-1 pl-7">
+                    {server.reg_status}
+                  </p>
+                  {server.reg_status === 'NEW' && (
+                    <Button
+                      className="w-28 font-extralight text-blue-600 underline underline-offset-4"
+                      size={'xs'}
+                      variant={'ghost'}
+                      onClick={async () => { navigate({ to: `/server-groups/${groupId}/manage-servers/register-server/${server.ip}` }) }}
+                    >
+                      Generate Token
+                    </Button>
+                  )}
+                </TableCell>
                 <TableCell className="py-2 px-4">
                   {server.agent_version}
                 </TableCell>

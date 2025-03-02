@@ -58,3 +58,11 @@ Content-Type: application/json
     "ip":"1.1.1.1",
     "machine_id":"<etc/uuid>"
 }
+
+### Get ip address by hostname
+POST {{baseUrl}}/api/v1/utils/ip-by-host
+Content-Type: application/json
+
+{
+    "hostname":"goide.roray.dev"
+}

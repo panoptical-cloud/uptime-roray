@@ -5,24 +5,37 @@
 package repo
 
 type Server struct {
-	ID                 int64   `json:"id"`
-	Name               string  `json:"name"`
-	Hostname           string  `json:"hostname"`
-	Ip                 *string `json:"ip"`
-	AgentPort          *int64  `json:"agent_port"`
-	AgentVersion       *string `json:"agent_version"`
+	ID                 string  `json:"id"`
 	GroupID            int64   `json:"group_id"`
+	Ip                 string  `json:"ip"`
+	Mac                *string `json:"mac"`
+	RegStatus          string  `json:"reg_status"`
 	OneTimeToken       *string `json:"one_time_token"`
 	OneTimeTokenExpiry *int64  `json:"one_time_token_expiry"`
+	Name               string  `json:"name"`
+	Desc               *string `json:"desc"`
+	Fqdn               *string `json:"fqdn"`
+	AgentVersion       *string `json:"agent_version"`
+	Os                 *string `json:"os"`
+	Arch               *string `json:"arch"`
+	NatsSubject        *string `json:"nats_subject"`
+	MonitEnabled       *bool   `json:"monit_enabled"`
+	NotifsEnabled      *bool   `json:"notifs_enabled"`
 }
 
 type ServerBaseStat struct {
-	ServerID     int64    `json:"server_id"`
+	ServerID     string   `json:"server_id"`
 	Timestamp    int64    `json:"timestamp"`
 	CpuUsage     *float64 `json:"cpu_usage"`
 	MemoryUsage  *float64 `json:"memory_usage"`
 	DiskUsage    *float64 `json:"disk_usage"`
 	NetworkUsage *float64 `json:"network_usage"`
+}
+
+type ServerConfig struct {
+	ServerID string `json:"server_id"`
+	Key      string `json:"key"`
+	Value    string `json:"value"`
 }
 
 type ServerGroup struct {
@@ -31,13 +44,21 @@ type ServerGroup struct {
 	Desc string `json:"desc"`
 }
 
-type ServerMetadatum struct {
-	ServerID int64  `json:"server_id"`
-	Key      string `json:"key"`
-	Value    string `json:"value"`
-}
-
 type ServerPort struct {
 	ServerID string `json:"server_id"`
 	Port     int64  `json:"port"`
+}
+
+type ServerPortsUp struct {
+	ServerID  string `json:"server_id"`
+	Port      int64  `json:"port"`
+	Timestamp int64  `json:"timestamp"`
+	Up        bool   `json:"up"`
+}
+
+type ServerUp struct {
+	ServerID  string `json:"server_id"`
+	Timestamp int64  `json:"timestamp"`
+	Up        bool   `json:"up"`
+	Uptime    *int64 `json:"uptime"`
 }

@@ -10,26 +10,17 @@ create table if not exists server_groups(
     desc text not null
 );
 
-create table if not exists inflight_servers(
-    id INTEGER PRIMARY KEY,
-    name text not null,
-    desc text not null,
-    fqdn text not null UNIQUE,
-    status text not null, -- NEW -> PENDING -> ACTIVE
+create table if not exists servers (
+    id text not null, -- group_id::ip
+    group_id INTEGER not null,
+    ip text not null,
+    mac text, -- UUID from server cat /etc/machine-id 
+    reg_status text not null, -- NEW -> PENDING -> ACTIVE
     one_time_token text,
     one_time_token_expiry INTEGER,
-    group_id INTEGER not null,
-    FOREIGN KEY(group_id) REFERENCES server_groups(id)
-)
-
-create table if not exists servers (
-    id text primary key, -- UUID from server cat /etc/machine-id
-    inflight_servers_id INTEGER,
-    group_id INTEGER not null,
     name text not null,
-    desc text not null,
-    fqdn text not null,
-    ip text,
+    desc text,
+    fqdn text,
     agent_version text,
     os text, -- OS name and version
     arch text, -- system arch viz. x86_64, arm64
@@ -37,7 +28,7 @@ create table if not exists servers (
     monit_enabled BOOLEAN, -- if monit is enabled on the remote host; overrides group setting
     notifs_enabled BOOLEAN, -- if notifications are enabled on the remote host; overrides group setting
     FOREIGN KEY(group_id) REFERENCES server_groups(id),
-    FOREIGN KEY(inflight_servers_id) REFERENCES inflight_servers(id)
+    PRIMARY KEY(group_id, ip)
 );
 
 create table if not exists server_configs(

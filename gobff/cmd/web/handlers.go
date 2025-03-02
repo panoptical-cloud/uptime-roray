@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"pc-uptime/bff/db/repo"
+	"pc-uptime/bff/utils"
 	"strconv"
 	"time"
 
@@ -53,6 +54,31 @@ func (app *application) getServerPort(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(db)
+}
+
+func (app *application) getIpFromHost(w http.ResponseWriter, r *http.Request) {
+	type Reqbody struct {
+		Hostname string `json:"hostname"`
+	}
+	var reqp Reqbody
+	err := json.NewDecoder(r.Body).Decode(&reqp)
+	if err != nil {
+		app.logger.Error("Error decoding request body", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error decoding request body"))
+		return
+	}
+	ip, err := utils.GetIpFromHost(reqp.Hostname)
+	if err != nil {
+		app.logger.Error("Error getting IP from hostname", "error", err, "hostname", reqp.Hostname)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error resolving hostname to IP"))
+		return
+	}
+	// Return the result as JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"ip": *ip})
 }
 
 func (app *application) listServerPorts(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +154,7 @@ func (app *application) getServerGroup(w http.ResponseWriter, r *http.Request) {
 func (app *application) addServerToGroup(w http.ResponseWriter, r *http.Request) {
 	var reqp repo.CreateServerParams
 	err := json.NewDecoder(r.Body).Decode(&reqp)
+	reqp.ID = strconv.Itoa(int(reqp.GroupID)) + "::" + reqp.Ip
 	if err != nil {
 		app.logger.Error("Error decoding request body", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -136,7 +163,7 @@ func (app *application) addServerToGroup(w http.ResponseWriter, r *http.Request)
 	}
 	db, err := app.repo.CreateServer(r.Context(), reqp)
 	if err != nil {
-		app.logger.Error("Error adding server tto group", "error", err)
+		app.logger.Error("Error adding server to group", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error adding server to group"))
 		return
@@ -169,7 +196,7 @@ func (app *application) listServersByGroup(w http.ResponseWriter, r *http.Reques
 
 func (app *application) getServerById(w http.ResponseWriter, r *http.Request) {
 	_groupId := r.PathValue("gid")
-	_serverId := r.PathValue("sid")
+	serverId := r.PathValue("sid")
 	groupId, err := strconv.Atoi(_groupId)
 	if err != nil {
 		app.logger.Error("Error converting group id to int", "error", err)
@@ -177,16 +204,9 @@ func (app *application) getServerById(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error converting group id to int"))
 		return
 	}
-	serverId, err := strconv.Atoi(_serverId)
-	if err != nil {
-		app.logger.Error("Error converting server id to int", "error", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Error converting server id to int"))
-		return
-	}
 	db, err := app.repo.GetServerByGidSid(r.Context(), repo.GetServerByGidSidParams{
 		GroupID: int64(groupId),
-		ID:      int64(serverId),
+		ID:      _groupId + "::" + serverId,
 	})
 
 	if err != nil {
@@ -201,17 +221,18 @@ func (app *application) getServerById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) generateServerToken(w http.ResponseWriter, r *http.Request) {
-	_serverId := r.PathValue("sid")
-	serverId, err := strconv.Atoi(_serverId)
-	if err != nil {
-		app.logger.Error("Error converting server id to int", "error", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Error converting server id to int"))
-		return
-	}
+	groupId := r.PathValue("gid")
+	serverId := r.PathValue("sid")
+	// serverId, err := strconv.Atoi(_serverId)
+	// if err != nil {
+	// 	app.logger.Error("Error converting server id to int", "error", err)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte("Error converting server id to int"))
+	// 	return
+	// }
 
 	key := make([]byte, 10)
-	_, err = rand.Read(key)
+	_, err := rand.Read(key)
 	if err != nil {
 		app.logger.Error("Error generating random key", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -222,7 +243,7 @@ func (app *application) generateServerToken(w http.ResponseWriter, r *http.Reque
 
 	// Save the key in the database
 	err = app.repo.UpdateOneTimeTokenForServerRegistration(r.Context(), repo.UpdateOneTimeTokenForServerRegistrationParams{
-		ID:           int64(serverId),
+		ID:           groupId + "::" + serverId,
 		OneTimeToken: &token,
 	})
 	if err != nil {
@@ -239,16 +260,16 @@ func (app *application) generateServerToken(w http.ResponseWriter, r *http.Reque
 
 func (app *application) verifyServerToken(w http.ResponseWriter, r *http.Request) {
 	incomingToken := r.PathValue("token")
-	_serverId := r.PathValue("sid")
-	serverId, err := strconv.Atoi(_serverId)
-	if err != nil {
-		app.logger.Error("Error converting server id to int", "error", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Error converting server id to int"))
-		return
-	}
+	serverId := r.PathValue("sid")
+	// serverId, err := strconv.Atoi(_serverId)
+	// if err != nil {
+	// 	app.logger.Error("Error converting server id to int", "error", err)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte("Error converting server id to int"))
+	// 	return
+	// }
 
-	db, err := app.repo.GetOneTimeTokenForServerRegistration(r.Context(), int64(serverId))
+	db, err := app.repo.GetOneTimeTokenForServerRegistration(r.Context(), serverId)
 	if err != nil {
 		app.logger.Error("Error verifying token", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
