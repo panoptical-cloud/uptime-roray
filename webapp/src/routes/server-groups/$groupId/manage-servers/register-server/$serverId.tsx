@@ -75,7 +75,7 @@ function RouteComponent() {
           const tokenData = _tokenData.token
           const tokenURL =
             window.location.origin +
-            `/api/v1/server/${serverId}/verifytoken/${tokenData}`
+            `/api/v1/server-groups/${groupId}/servers/${serverId}/verifytoken/${tokenData}`
           console.log(tokenURL)
           setToken(tokenURL)
           setShowToken(true)

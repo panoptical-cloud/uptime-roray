@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.completeServerRegistrationStmt, err = db.PrepareContext(ctx, completeServerRegistration); err != nil {
+		return nil, fmt.Errorf("error preparing query CompleteServerRegistration: %w", err)
+	}
 	if q.createServerStmt, err = db.PrepareContext(ctx, createServer); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateServer: %w", err)
 	}
@@ -65,6 +68,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.completeServerRegistrationStmt != nil {
+		if cerr := q.completeServerRegistrationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing completeServerRegistrationStmt: %w", cerr)
+		}
+	}
 	if q.createServerStmt != nil {
 		if cerr := q.createServerStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createServerStmt: %w", cerr)
@@ -164,6 +172,7 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                                          DBTX
 	tx                                          *sql.Tx
+	completeServerRegistrationStmt              *sql.Stmt
 	createServerStmt                            *sql.Stmt
 	createServerGroupStmt                       *sql.Stmt
 	createServerPortStmt                        *sql.Stmt
@@ -182,6 +191,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                                       tx,
 		tx:                                       tx,
+		completeServerRegistrationStmt:           q.completeServerRegistrationStmt,
 		createServerStmt:                         q.createServerStmt,
 		createServerGroupStmt:                    q.createServerGroupStmt,
 		createServerPortStmt:                     q.createServerPortStmt,

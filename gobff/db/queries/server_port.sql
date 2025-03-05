@@ -43,5 +43,8 @@ SELECT * FROM servers WHERE group_id = ? AND id = ?;
 -- name: UpdateOneTimeTokenForServerRegistration :exec
 UPDATE servers SET one_time_token = ?, reg_status = 'PENDING' WHERE id = ?;
 
+-- name: CompleteServerRegistration :exec
+UPDATE servers SET reg_status = 'ACTIVE', agent_version = ?, mac = ? WHERE id = ?;
+
 -- name: GetOneTimeTokenForServerRegistration :one
 SELECT one_time_token FROM servers WHERE id = ?;

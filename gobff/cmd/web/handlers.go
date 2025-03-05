@@ -260,16 +260,10 @@ func (app *application) generateServerToken(w http.ResponseWriter, r *http.Reque
 
 func (app *application) verifyServerToken(w http.ResponseWriter, r *http.Request) {
 	incomingToken := r.PathValue("token")
-	serverId := r.PathValue("sid")
-	// serverId, err := strconv.Atoi(_serverId)
-	// if err != nil {
-	// 	app.logger.Error("Error converting server id to int", "error", err)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	w.Write([]byte("Error converting server id to int"))
-	// 	return
-	// }
+	sip := r.PathValue("sip")
+	groupId := r.PathValue("gid")
 
-	db, err := app.repo.GetOneTimeTokenForServerRegistration(r.Context(), serverId)
+	db, err := app.repo.GetOneTimeTokenForServerRegistration(r.Context(), groupId+"::"+sip)
 	if err != nil {
 		app.logger.Error("Error verifying token", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -285,12 +279,33 @@ func (app *application) verifyServerToken(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	var body repo.CompleteServerRegistrationParams
+
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		app.logger.Error("Error decoding request body", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error decoding request body"))
+		return
+	}
+
+	body.ID = groupId + "::" + sip
+	err = app.repo.CompleteServerRegistration(r.Context(), body)
+	if err != nil {
+		app.logger.Error("Error completing server registration", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error completing server registration"))
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	retMsg := struct {
-		NatsUrl string `json:"natsUrl"`
+		NatsUrl     string `json:"natsUrl"`
+		NatsSubject string `json:"subj"`
 	}{
-		NatsUrl: app.natsServer.ClientURL(),
+		NatsUrl:     app.natsServer.ClientURL(),
+		NatsSubject: *body.Mac,
 	}
 	json.NewEncoder(w).Encode(retMsg)
 }

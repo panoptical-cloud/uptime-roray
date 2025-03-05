@@ -126,10 +126,9 @@ func main() {
 				// fmt.Println(v)
 
 				stats := &api.BaseStatsReply{
-					Hostname: "test",
-					Cpu:      int32(cpuPercent[0]),
-					Memory:   int32(v.UsedPercent),
-					Disk:     int32(diskUsage.UsedPercent),
+					Cpu:    int32(cpuPercent[0]),
+					Memory: int32(v.UsedPercent),
+					Disk:   int32(diskUsage.UsedPercent),
 				}
 
 				// MARSHAL
@@ -140,8 +139,8 @@ func main() {
 
 				// SEND
 				// NATS - REQUEST & REPLY on "test.rpc" (THE PIPE)
-				log.Printf("   Send request msg to subject 'agent.localhost.metrics.basic'\n")
-				_, err = nc.Request("agent.localhost.metrics.basic", msg, replyWaitTime*time.Second)
+				log.Printf("   Send request msg to subject 'agent.5eb1cf4a-da7d-426c-9642-eb15a411ccf6.metrics.basic'\n")
+				_, err = nc.Request("agent.5eb1cf4a-da7d-426c-9642-eb15a411ccf6.metrics.basic", msg, replyWaitTime*time.Second)
 				if err != nil {
 					log.Println(err)
 				}

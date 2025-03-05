@@ -9,6 +9,21 @@ import (
 	"context"
 )
 
+const completeServerRegistration = `-- name: CompleteServerRegistration :exec
+UPDATE servers SET reg_status = 'ACTIVE', agent_version = ?, mac = ? WHERE id = ?
+`
+
+type CompleteServerRegistrationParams struct {
+	AgentVersion *string `json:"agent_version"`
+	Mac          *string `json:"mac"`
+	ID           string  `json:"id"`
+}
+
+func (q *Queries) CompleteServerRegistration(ctx context.Context, arg CompleteServerRegistrationParams) error {
+	_, err := q.exec(ctx, q.completeServerRegistrationStmt, completeServerRegistration, arg.AgentVersion, arg.Mac, arg.ID)
+	return err
+}
+
 const createServer = `-- name: CreateServer :one
 INSERT INTO servers 
     (id, name, ip, group_id, reg_status)

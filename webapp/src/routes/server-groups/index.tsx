@@ -62,19 +62,19 @@ function RouteComponent() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
           <div className="aspect-video rounded-xl bg-muted/50">
-            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight p-4">
+            <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight p-4">
               Overview
-            </h3>
+            </h2>
           </div>
           <div className="aspect-video rounded-xl bg-muted/50">
-            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight p-4">
+            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight p-4">
               Events
-            </h3>
+            </h4>
           </div>
           <div className="aspect-video rounded-xl bg-muted/50">
-            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight p-4">
+            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight p-4">
               Incidents
-            </h3>
+            </h4>
           </div>
         </div>
         <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">

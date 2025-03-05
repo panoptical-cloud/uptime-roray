@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,7 +11,26 @@ import (
 )
 
 func RegisterWithServer(url string) error {
-	resp, err := http.Get(url)
+	pu := &PsUtils{}
+	macId, err := pu.GetSelfMachineId()
+	if err != nil {
+		return fmt.Errorf("failed to get machine id: %w", err)
+	}
+
+	rb := &RegPostReqBody{
+		Version:   "1.0.0",
+		MachineId: *macId,
+	}
+
+	jb, err := json.Marshal(rb)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	fmt.Printf("%#v", rb)
+
+	br := bytes.NewReader(jb)
+	resp, err := http.Post(url, "application/json", br)
 	if err != nil {
 		fmt.Println("Error while registering with server", err)
 		return err
@@ -22,7 +42,7 @@ func RegisterWithServer(url string) error {
 	}
 	fmt.Println("Response from server:", string(body))
 
-	configFile := "/agent.conf"
+	configFile := "/agent.toml"
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("failed to get user home directory: %w", err)
@@ -38,16 +58,23 @@ func RegisterWithServer(url string) error {
 	}
 	defer file.Close()
 	respMsg := struct {
-		NatsUrl string `json:"natsUrl"`
+		NatsUrl     string `json:"natsUrl"`
+		NatsSubject string `json:"subj"`
 	}{}
 	err = json.Unmarshal(body, &respMsg)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
-	_, err = file.WriteString(fmt.Sprintf("%s\n", respMsg))
+
+	// Create TOML content
+	tomlContent := fmt.Sprintf("nats_url = %q\nnats_subject = %q\n", respMsg.NatsUrl, respMsg.NatsSubject)
+
+	// Write TOML content to file
+	_, err = file.WriteString(tomlContent)
 	if err != nil {
 		return fmt.Errorf("failed to write to config file: %w", err)
 	}
+
 	fmt.Printf("Registration details saved to %s\n", configFile)
 	return nil
 }
