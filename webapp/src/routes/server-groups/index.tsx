@@ -33,6 +33,8 @@ export const Route = createFileRoute('/server-groups/')({
 
 function RouteComponent() {
   const [progress, setProgress] = useState(13)
+  const [servers, setServers] = useState<Server[]>([])
+
 
   useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500)
@@ -55,7 +57,7 @@ function RouteComponent() {
     // Add more server entries as needed
   ]
 
-  const [servers, setServers] = useState(serverData)
+  const [serversa, setServersa] = useState(serverData)
 
   return (
     <>
@@ -91,7 +93,7 @@ function RouteComponent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {servers.map((server) => (
+                {serversa.map((server) => (
                   <TableRow key={server.name}>
                     <TableCell>
                       <span className="font-semibold"> {server.name}</span>
