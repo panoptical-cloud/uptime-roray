@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 func GetAllServerGroupsSvc(ch chan []*ServerGroup) {
-	// ch <- GetAllServerGroupsApi(ch)
 	resp, err := http.Get("http://localhost:9191/api/v1/server-groups")
 	if err != nil {
 		return
@@ -23,23 +23,19 @@ func GetAllServerGroupsSvc(ch chan []*ServerGroup) {
 	ch <- serverGroups
 }
 
-func GetServersByGroupIdSvc(groupId int) []*Server {
-	fmt.Println("SVC func call")
-	ssDC := make(chan []*Server)
-	ssDC <- GetServersByGroupIdApi(groupId)
-	ss := <-ssDC
-	fmt.Println("SVC func call done" + ss[0].Name)
-	return ss
+func GetServersByGroupIdSvc(groupId int, ch chan []*Server) {
+	resp, err := http.Get("http://localhost:9191/api/v1/server-groups/" + strconv.Itoa(groupId) + "/servers")
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return
+	}
+	var servers []*Server
+	if err := json.NewDecoder(resp.Body).Decode(&servers); err != nil {
+		log.Fatal(err)
+		return
+	}
+	ch <- servers
 }
-
-// func GetServersByGroupIdSvc(groupId int) []*Server {
-// 	//replace below mock witha actual call to the server
-// 	switch groupId {
-// 	case 1:
-// 		return MockServersA()
-// 	case 2:
-// 		return MockServersB()
-// 	default:
-// 		return nil
-// 	}
-// }
