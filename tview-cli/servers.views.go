@@ -42,10 +42,12 @@ func LeftContent(app *tview.Application, focusOn tview.Primitive, f *tview.Flex,
 
 func MiddleContent(app *tview.Application, f *tview.Flex) {
 	metricsView := ServerMetricsView(app, f, "nats://localhost:4222", "agent.*.metrics.basic")
-	// f.AddItem(tview.NewList().SetTitle("right").SetBorder(true), 0, 2, false)
 	f.AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(tview.NewBox().SetBorder(true).SetTitle(" middle "), 0, 1, false).
-		AddItem(metricsView, 0, 1, false), 0, 2, false)
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(metricsView[0], 0, 1, false).
+			AddItem(metricsView[1], 0, 1, false).
+			AddItem(metricsView[2], 0, 1, false), 0, 1, false), 0, 2, false)
 }
 
 func RightContent(f *tview.Flex) {
@@ -75,14 +77,22 @@ func SelectedServerGroup(sgs []*ServerGroup, i int) *ServerGroup {
 }
 
 // ServerMetricsView subscribes to a NATS subject for server metrics and displays them
-func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject string) *tview.TextView {
-	textView := tview.NewTextView().
+func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject string) []*tview.TextView {
+	cpuTxt := tview.NewTextView().
+		SetDynamicColors(true).
+		SetScrollable(true).
+		SetWordWrap(true)
+	diskTxt := tview.NewTextView().
+		SetDynamicColors(true).
+		SetScrollable(true).
+		SetWordWrap(true)
+	memTxt := tview.NewTextView().
 		SetDynamicColors(true).
 		SetScrollable(true).
 		SetWordWrap(true)
 
-	textView.SetBorder(true).SetTitle(" Server Metrics ")
-	textView.SetText("Connecting to NATS...")
+	memTxt.SetBorder(false).SetTitle(" Server Metrics ")
+	memTxt.SetText("Connecting to NATS...")
 
 	// Create buffered channel to avoid blocking on send
 	smDC := make(chan *api.BaseStatsReply, 10)
@@ -93,7 +103,7 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 		nc, err := nats.Connect(natsURL)
 		if err != nil {
 			app.QueueUpdateDraw(func() {
-				textView.SetText(fmt.Sprintf("[red]Error connecting to NATS: %v[white]", err))
+				memTxt.SetText(fmt.Sprintf("[red]Error connecting to NATS: %v[white]", err))
 			})
 			return
 		}
@@ -101,7 +111,7 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 
 		// Update the UI to show connection was successful
 		app.QueueUpdateDraw(func() {
-			textView.SetText("Connected to NATS. Waiting for metrics data...")
+			memTxt.SetText("Connected to NATS. Waiting for metrics data...")
 		})
 
 		// fmt.Printf("Successfully connected to NATS at %s\n", natsURL)
@@ -124,7 +134,7 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 
 		if err != nil {
 			app.QueueUpdateDraw(func() {
-				textView.SetText(fmt.Sprintf("[red]Error subscribing to metrics: %v[white]", err))
+				memTxt.SetText(fmt.Sprintf("[red]Error subscribing to metrics: %v[white]", err))
 			})
 			return
 		}
@@ -143,13 +153,15 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 
 			// Update the TextView with new metrics data
 			app.QueueUpdateDraw(func() {
-				mem := fmt.Sprintf("RAM: %.2f", md.Memory)
-				// cpu := fmt.Sprintf("%f", math.Round(*(md.Cpu))*100/100)
-				// disk := fmt.Sprintf("%f", math.Round(*(md.Disk))*100/100)
-				textView.SetText(mem)
+
+				mem := fmt.Sprintf("RAM: %.2f %%", *md.Memory)
+				cpu := fmt.Sprintf("CPU: %.2f %%", *md.Cpu)
+				disk := fmt.Sprintf("Disk: %.2f %%", *md.Disk)
+				memTxt.SetText(mem)
+				cpuTxt.SetText(cpu)
+				diskTxt.SetText(disk)
 			})
 		}
 	}()
-
-	return textView
+	return []*tview.TextView{memTxt, cpuTxt, diskTxt}
 }

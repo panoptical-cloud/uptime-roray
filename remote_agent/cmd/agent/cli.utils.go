@@ -100,7 +100,7 @@ func DefaultCmd() error {
 	for c := time.Tick(time.Duration(tickTime) * time.Second); ; <-c {
 
 		v, _ := mem.VirtualMemory()
-		cpuPercent, _ := cpu.Percent(1, false)
+		cpuPercent, _ := cpu.Percent(0, false)
 		diskUsage, _ := disk.Usage("/")
 
 		stats := &api.BaseStatsReply{
