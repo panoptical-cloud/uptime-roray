@@ -4,8 +4,10 @@ import (
 	"github.com/rivo/tview"
 )
 
-var as *AppStateConfig
-
+var(
+	 as *AppStateConfig
+	 af tview.Primitive
+	)
 func main() {
 	as = &AppStateConfig{}
 	as.CurrentScreen = WELCOME
@@ -29,7 +31,7 @@ func main() {
 	go func() {
 		app.QueueUpdateDraw(func() {
 			flex.Clear()
-			DrawServersScreen(flex, as.ServerScreenConfig)
+			DrawServersScreen(app, af, flex, as.ServerScreenConfig)
 			app.SetFocus(flex)
 		})
 	}()
