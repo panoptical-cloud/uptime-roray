@@ -10,8 +10,11 @@ var (
 )
 
 func main() {
-	as = &AppStateConfig{}
-	as.CurrentScreen = WELCOME
+	nc := NewNatsConn("nats://localhost:4222")
+	as = &AppStateConfig{
+		NC:            nc,
+		CurrentScreen: WELCOME,
+	}
 	app := tview.NewApplication()
 	flex := tview.NewFlex()
 	flex.AddItem(tview.NewBox().SetBorder(true).SetTitle(" Welcome "), 0, 1, false)

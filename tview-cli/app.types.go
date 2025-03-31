@@ -1,5 +1,7 @@
 package main
 
+import "github.com/nats-io/nats.go"
+
 type AppViewScreens int
 
 const (
@@ -17,6 +19,7 @@ type ServerScreenConfig struct {
 type AppStateConfig struct {
 	CurrentScreen      AppViewScreens
 	ServerScreenConfig *ServerScreenConfig
+	NC                 *nats.Conn
 }
 
 // func (asc *AppStateConfig) SetServerScreenConfig(sg *ServerScreenConfig) {

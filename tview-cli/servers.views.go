@@ -41,7 +41,7 @@ func LeftContent(app *tview.Application, focusOn tview.Primitive, f *tview.Flex,
 }
 
 func MiddleContent(app *tview.Application, f *tview.Flex) {
-	metricsView := ServerMetricsView(app, "nats://localhost:4222", "agent.*.metrics.basic")
+	metricsView := ServerMetricsView(app, f, "nats://localhost:4222", "agent.*.metrics.basic")
 	// f.AddItem(tview.NewList().SetTitle("right").SetBorder(true), 0, 2, false)
 	f.AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(tview.NewBox().SetBorder(true).SetTitle(" middle "), 0, 1, false).
@@ -75,7 +75,7 @@ func SelectedServerGroup(sgs []*ServerGroup, i int) *ServerGroup {
 }
 
 // ServerMetricsView subscribes to a NATS subject for server metrics and displays them
-func ServerMetricsView(app *tview.Application, natsURL, subject string) *tview.TextView {
+func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject string) *tview.TextView {
 	textView := tview.NewTextView().
 		SetDynamicColors(true).
 		SetScrollable(true).
@@ -143,8 +143,10 @@ func ServerMetricsView(app *tview.Application, natsURL, subject string) *tview.T
 
 			// Update the TextView with new metrics data
 			app.QueueUpdateDraw(func() {
-				s := fmt.Sprintf("%f", *md.Memory) // s == "123.456000"
-				textView.SetText(s)
+				mem := fmt.Sprintf("RAM: %.2f", md.Memory)
+				// cpu := fmt.Sprintf("%f", math.Round(*(md.Cpu))*100/100)
+				// disk := fmt.Sprintf("%f", math.Round(*(md.Disk))*100/100)
+				textView.SetText(mem)
 			})
 		}
 	}()
