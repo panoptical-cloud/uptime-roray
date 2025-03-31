@@ -4,10 +4,11 @@ import (
 	"github.com/rivo/tview"
 )
 
-var(
-	 as *AppStateConfig
-	 af tview.Primitive
-	)
+var (
+	as *AppStateConfig
+	af tview.Primitive
+)
+
 func main() {
 	as = &AppStateConfig{}
 	as.CurrentScreen = WELCOME
@@ -38,5 +39,4 @@ func main() {
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
 	}
-
 }
