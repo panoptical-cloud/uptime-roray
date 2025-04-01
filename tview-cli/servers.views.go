@@ -22,7 +22,7 @@ func DrawServersScreen(app *tview.Application, focusOn tview.Primitive, f *tview
 func LeftContent(app *tview.Application, focusOn tview.Primitive, f *tview.Flex, ssc *ServerScreenConfig) {
 	sgsList := ServerGroupList(ssc.ServerGroups)
 	sgsList.SetTitle(" Server Groups (g) ").SetTitleAlign(tview.AlignLeft).SetBorder(true)
-	ssList := ServerList(ssc.Servers)
+	ssList := ServerList(ssc)
 	ssList.SetTitle(" Servers (s) ").SetTitleAlign(tview.AlignLeft).SetBorder(true)
 	f.AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(sgsList, 0, 1, true).
@@ -62,11 +62,14 @@ func ServerGroupList(sgs []*ServerGroup) *tview.List {
 	}
 	return l
 }
-func ServerList(ss []*Server) *tview.List {
+func ServerList(ssc *ServerScreenConfig) *tview.List {
 	l := tview.NewList()
-	for idx, s := range ss {
+	for idx, s := range ssc.Servers {
 		// l.AddItem(s.Name, s.IP, ToChar(idx), nil)
-		l.AddItem(s.Name, s.IP, rune('1'+idx), nil)
+		l.AddItem(s.Name, s.IP, rune('1'+idx), func() {
+			selSer := SelectedServer(ssc.Servers, idx)
+			ssc.SelectedServer = selSer
+		})
 	}
 	return l
 }
@@ -78,16 +81,18 @@ func SelectedServerGroup(sgs []*ServerGroup, i int) *ServerGroup {
 	return sgs[i]
 }
 
+func SelectedServer(ss []*Server, i int) *Server {
+	if i < 0 || i >= len(ss) {
+		return nil
+	}
+	return ss[i]
+}
+
 // ServerMetricsView subscribes to a NATS subject for server metrics and displays them
 func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject string) []*tview.TextView {
 	cpuTxt := tview.NewTextView().SetLabel("[yellow]CPU: ")
 	diskTxt := tview.NewTextView().SetLabel("[yellow]Disk: ")
 	memTxt := tview.NewTextView().SetLabel("[yellow]RAM: ")
-	// SetScrollable(true).
-	// SetWordWrap(true)
-
-	// memTxt.SetBorder(false).SetTitle(" Server Metrics ")
-	// memTxt.SetText("Connecting to NATS...")
 
 	// Create buffered channel to avoid blocking on send
 	smDC := make(chan *api.BaseStatsReply, 10)
@@ -104,26 +109,13 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 		}
 		defer nc.Close()
 
-		// Update the UI to show connection was successful
-		// app.QueueUpdateDraw(func() {
-		// 	memTxt.SetText("Connected to NATS. Waiting for metrics data...")
-		// })
-
-		// fmt.Printf("Successfully connected to NATS at %s\n", natsURL)
-		// fmt.Printf("Subscribing to subject: %s\n", subject)
-
 		// Subscribe to the metrics subject - fix unused variable
 		_, err = nc.Subscribe(subject, func(msg *nats.Msg) {
-			// fmt.Printf("Received message on subject: %s\n", msg.Subject)
-
 			rcvData := &api.BaseStatsReply{}
 			err = proto.Unmarshal(msg.Data, rcvData)
 			if err != nil {
-				// fmt.Printf("Error unmarshalling metrics data: %v\n", err)
 				return
 			}
-
-			// fmt.Printf("Successfully unmarshalled message, sending to channel\n")
 			smDC <- rcvData
 		})
 
@@ -133,22 +125,16 @@ func ServerMetricsView(app *tview.Application, f *tview.Flex, natsURL, subject s
 			})
 			return
 		}
-
-		// fmt.Printf("Successfully subscribed to: %s\n", subject)
-
 		// This is critical - without this, the goroutine could exit and close the NATS connection
 		select {} // Block forever
 	}()
 
 	go func() {
 		for {
-			// fmt.Printf("Waiting for metrics data on channel...\n")
 			md := <-smDC
-			// fmt.Printf("Received metrics data from channel: %+v\n", md)
 
 			// Update the TextView with new metrics data
 			app.QueueUpdateDraw(func() {
-
 				mem := fmt.Sprintf("%.2f %%", *md.Memory)
 				cpu := fmt.Sprintf("%.2f %%", *md.Cpu)
 				disk := fmt.Sprintf("%.2f %%", *md.Disk)
