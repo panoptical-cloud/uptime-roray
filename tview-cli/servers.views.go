@@ -42,13 +42,15 @@ func LeftContent(app *tview.Application, focusOn tview.Primitive, f *tview.Flex,
 
 func MiddleContent(app *tview.Application, f *tview.Flex) {
 	metricsView := ServerMetricsView(app, f, "nats://localhost:4222", "agent.*.metrics.basic")
+	smt := tview.NewTextView().SetText(" \nServer Metrics: \n")
+
 	f.AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(tview.NewBox().SetBorder(true).SetTitle(" middle "), 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(tview.NewBox().SetBorder(false).SetTitle(" Server Metrics ").SetTitleAlign(tview.AlignLeft), 0, 1, false).
-			AddItem(metricsView[0], 0, 1, false).
-			AddItem(metricsView[1], 0, 1, false).
-			AddItem(metricsView[2], 0, 1, false), 0, 1, false), 0, 2, false)
+			AddItem(smt, 3, 1, false).
+			AddItem(metricsView[0], 2, 1, false).
+			AddItem(metricsView[1], 2, 1, false).
+			AddItem(metricsView[2], 2, 1, false), 0, 1, false), 0, 2, false)
 }
 
 func RightContent(f *tview.Flex) {
