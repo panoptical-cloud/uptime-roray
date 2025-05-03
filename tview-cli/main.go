@@ -1,45 +1,20 @@
 package main
 
 import (
-	"github.com/rivo/tview"
+	g "pc-uptime/tview/global"
+	m "pc-uptime/tview/models"
+	sg "pc-uptime/tview/sg"
 )
 
-var (
-	as *AppStateConfig
-	af tview.Primitive
-)
+var App *m.AppHolder
 
 func main() {
-	nc := NewNatsConn("nats://localhost:4222")
-	as = &AppStateConfig{
-		NC:            nc,
-		CurrentScreen: WELCOME,
-	}
-	app := tview.NewApplication()
-	flex := tview.NewFlex()
-	flex.AddItem(tview.NewBox().SetBorder(true).SetTitle(" Welcome "), 0, 1, false)
-	sgDC := make(chan []*ServerGroup)
-	sDC := make(chan []*Server)
-	var sgs []*ServerGroup
-	var ss []*Server
-	go GetAllServerGroupsSvc(sgDC)
-	sgs = <-sgDC
-	go GetServersByGroupIdSvc(sgs[0].ID, sDC)
-	ss = <-sDC
-	as.ServerScreenConfig = &ServerScreenConfig{
-		ServerGroups:        sgs,
-		Servers:             ss,
-		SelectedServerGroup: sgs[0],
-		SelectedServer:      ss[0],
-	}
-	go func() {
-		app.QueueUpdateDraw(func() {
-			flex.Clear()
-			DrawServersScreen(app, af, flex, as.ServerScreenConfig)
-			app.SetFocus(flex)
-		})
-	}()
-	if err := app.SetRoot(flex, true).Run(); err != nil {
+	App = g.NewApp("nats://localhost:4222")
+	defer App.NC.Close()
+	sgDC := make(chan []*sg.ServerGroup)
+	go sg.GetAllServerGroupsSvc(sgDC)
+	go sg.DrawServerGroupScreen(App, sgDC)
+	if err := App.TviewApp.SetRoot(App.AppFlex, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)
 	}
 }
