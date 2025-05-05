@@ -24,6 +24,69 @@ func (q *Queries) CompleteServerRegistration(ctx context.Context, arg CompleteSe
 	return err
 }
 
+const createHttpUrlConfig = `-- name: CreateHttpUrlConfig :one
+INSERT INTO http_monit_configs
+    (url, friendly_name, interval, retries, timeout, upside_down, max_redirects, method, accepted_codes, body_encoding, body, headers, authentication_mode, expected_response)
+VALUES
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING encoded_url, url, friendly_name, interval, retries, timeout, upside_down, max_redirects, method, accepted_codes, body_encoding, body, headers, authentication_mode, expected_response
+`
+
+type CreateHttpUrlConfigParams struct {
+	Url                string  `json:"url"`
+	FriendlyName       string  `json:"friendly_name"`
+	Interval           int64   `json:"interval"`
+	Retries            int64   `json:"retries"`
+	Timeout            int64   `json:"timeout"`
+	UpsideDown         bool    `json:"upside_down"`
+	MaxRedirects       int64   `json:"max_redirects"`
+	Method             string  `json:"method"`
+	AcceptedCodes      string  `json:"accepted_codes"`
+	BodyEncoding       string  `json:"body_encoding"`
+	Body               *string `json:"body"`
+	Headers            *string `json:"headers"`
+	AuthenticationMode *string `json:"authentication_mode"`
+	ExpectedResponse   string  `json:"expected_response"`
+}
+
+func (q *Queries) CreateHttpUrlConfig(ctx context.Context, arg CreateHttpUrlConfigParams) (HttpMonitConfig, error) {
+	row := q.queryRow(ctx, q.createHttpUrlConfigStmt, createHttpUrlConfig,
+		arg.Url,
+		arg.FriendlyName,
+		arg.Interval,
+		arg.Retries,
+		arg.Timeout,
+		arg.UpsideDown,
+		arg.MaxRedirects,
+		arg.Method,
+		arg.AcceptedCodes,
+		arg.BodyEncoding,
+		arg.Body,
+		arg.Headers,
+		arg.AuthenticationMode,
+		arg.ExpectedResponse,
+	)
+	var i HttpMonitConfig
+	err := row.Scan(
+		&i.EncodedUrl,
+		&i.Url,
+		&i.FriendlyName,
+		&i.Interval,
+		&i.Retries,
+		&i.Timeout,
+		&i.UpsideDown,
+		&i.MaxRedirects,
+		&i.Method,
+		&i.AcceptedCodes,
+		&i.BodyEncoding,
+		&i.Body,
+		&i.Headers,
+		&i.AuthenticationMode,
+		&i.ExpectedResponse,
+	)
+	return i, err
+}
+
 const createServer = `-- name: CreateServer :one
 INSERT INTO servers 
     (id, name, ip, group_id, reg_status)
@@ -100,6 +163,33 @@ func (q *Queries) DeleteServerGroup(ctx context.Context, name string) error {
 	return err
 }
 
+const getHttpUrlConfigById = `-- name: GetHttpUrlConfigById :one
+SELECT encoded_url, url, friendly_name, interval, retries, timeout, upside_down, max_redirects, method, accepted_codes, body_encoding, body, headers, authentication_mode, expected_response FROM http_monit_configs WHERE encoded_url = ?
+`
+
+func (q *Queries) GetHttpUrlConfigById(ctx context.Context, encodedUrl string) (HttpMonitConfig, error) {
+	row := q.queryRow(ctx, q.getHttpUrlConfigByIdStmt, getHttpUrlConfigById, encodedUrl)
+	var i HttpMonitConfig
+	err := row.Scan(
+		&i.EncodedUrl,
+		&i.Url,
+		&i.FriendlyName,
+		&i.Interval,
+		&i.Retries,
+		&i.Timeout,
+		&i.UpsideDown,
+		&i.MaxRedirects,
+		&i.Method,
+		&i.AcceptedCodes,
+		&i.BodyEncoding,
+		&i.Body,
+		&i.Headers,
+		&i.AuthenticationMode,
+		&i.ExpectedResponse,
+	)
+	return i, err
+}
+
 const getOneTimeTokenForServerRegistration = `-- name: GetOneTimeTokenForServerRegistration :one
 SELECT one_time_token FROM servers WHERE id = ?
 `
@@ -169,6 +259,54 @@ func (q *Queries) GetServerPort(ctx context.Context, arg GetServerPortParams) (S
 	var i ServerPort
 	err := row.Scan(&i.ServerID, &i.Port)
 	return i, err
+}
+
+const listHttpUrlConfigs = `-- name: ListHttpUrlConfigs :many
+SELECT encoded_url, url, friendly_name, interval, retries, timeout, upside_down, max_redirects, method, accepted_codes, body_encoding, body, headers, authentication_mode, expected_response FROM http_monit_configs LIMIT ? OFFSET ?
+`
+
+type ListHttpUrlConfigsParams struct {
+	Limit  int64 `json:"limit"`
+	Offset int64 `json:"offset"`
+}
+
+func (q *Queries) ListHttpUrlConfigs(ctx context.Context, arg ListHttpUrlConfigsParams) ([]HttpMonitConfig, error) {
+	rows, err := q.query(ctx, q.listHttpUrlConfigsStmt, listHttpUrlConfigs, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []HttpMonitConfig{}
+	for rows.Next() {
+		var i HttpMonitConfig
+		if err := rows.Scan(
+			&i.EncodedUrl,
+			&i.Url,
+			&i.FriendlyName,
+			&i.Interval,
+			&i.Retries,
+			&i.Timeout,
+			&i.UpsideDown,
+			&i.MaxRedirects,
+			&i.Method,
+			&i.AcceptedCodes,
+			&i.BodyEncoding,
+			&i.Body,
+			&i.Headers,
+			&i.AuthenticationMode,
+			&i.ExpectedResponse,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listServerGroups = `-- name: ListServerGroups :many

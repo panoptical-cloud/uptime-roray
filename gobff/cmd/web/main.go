@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"time"
 
 	natsServer "github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nats.go"
@@ -31,30 +30,30 @@ type application struct {
 func main() {
 	// ctx := context.Background()
 
-	// nc, err := nats.Connect("nats://199.241.138.81:4222")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer nc.Close()
-	// log.Println("Connected to 199.241.138.81:4222")
-
-	opts := &natsServer.Options{
-		Port: 4222,
-		// customize options as needed
-	}
-	ns, err := natsServer.NewServer(opts)
+	nc, err := nats.Connect("nats://107.155.65.50:4222")
 	if err != nil {
 		log.Fatal(err)
 	}
-	go ns.Start()
+	defer nc.Close()
+	log.Println("NATS client connected to 107.155.65.50:4222")
 
-	if !ns.ReadyForConnections(10 * time.Second) {
-		log.Fatal("Embedded NATS server not ready for connections")
-	}
+	// opts := &natsServer.Options{
+	// 	Port: 4222,
+	// 	// customize options as needed
+	// }
+	// ns, err := natsServer.NewServer(opts)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// go ns.Start()
 
-	log.Println("Embedded NATS server started on port", opts.Port)
+	// if !ns.ReadyForConnections(10 * time.Second) {
+	// 	log.Fatal("Embedded NATS server not ready for connections")
+	// }
 
-	nc, err := nats.Connect(ns.ClientURL())
+	// log.Println("Embedded NATS server started on port", opts.Port)
+
+	// nc, err := nats.Connect(ns.ClientURL())
 	nc.Subscribe("agent.*.metrics.basic", func(msg *nats.Msg) {
 
 		rcvData := &api.BaseStatsReply{}
@@ -90,7 +89,7 @@ func main() {
 	app := &application{
 		logger:     initLogger(*logL),
 		repo:       queries,
-		natsServer: ns,
+		// natsServer: ns,
 		// sm: initSessionMgr("sqlite", *dsn),
 	}
 

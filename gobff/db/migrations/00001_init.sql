@@ -69,7 +69,8 @@ create table if not exists server_ports_up(
 );
 
 create table if not exists http_monit_configs(
-    url text PRIMARY KEY,
+    encoded_url text PRIMARY KEY,
+    url text unique not null,
     friendly_name text unique not null,
     interval INTEGER not null, -- check every interval seconds
     retries INTEGER not null, -- Maximum retries before the service is marked as down and a notification is sent
@@ -82,7 +83,7 @@ create table if not exists http_monit_configs(
     body text,
     headers text,
     authentication_mode text,
-    expected_response text not null,  
+    expected_response text not null
 );
 
 create table http_monit_data(

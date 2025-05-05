@@ -27,6 +27,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.completeServerRegistrationStmt, err = db.PrepareContext(ctx, completeServerRegistration); err != nil {
 		return nil, fmt.Errorf("error preparing query CompleteServerRegistration: %w", err)
 	}
+	if q.createHttpUrlConfigStmt, err = db.PrepareContext(ctx, createHttpUrlConfig); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateHttpUrlConfig: %w", err)
+	}
 	if q.createServerStmt, err = db.PrepareContext(ctx, createServer); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateServer: %w", err)
 	}
@@ -39,6 +42,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteServerGroupStmt, err = db.PrepareContext(ctx, deleteServerGroup); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteServerGroup: %w", err)
 	}
+	if q.getHttpUrlConfigByIdStmt, err = db.PrepareContext(ctx, getHttpUrlConfigById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetHttpUrlConfigById: %w", err)
+	}
 	if q.getOneTimeTokenForServerRegistrationStmt, err = db.PrepareContext(ctx, getOneTimeTokenForServerRegistration); err != nil {
 		return nil, fmt.Errorf("error preparing query GetOneTimeTokenForServerRegistration: %w", err)
 	}
@@ -50,6 +56,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getServerPortStmt, err = db.PrepareContext(ctx, getServerPort); err != nil {
 		return nil, fmt.Errorf("error preparing query GetServerPort: %w", err)
+	}
+	if q.listHttpUrlConfigsStmt, err = db.PrepareContext(ctx, listHttpUrlConfigs); err != nil {
+		return nil, fmt.Errorf("error preparing query ListHttpUrlConfigs: %w", err)
 	}
 	if q.listServerGroupsStmt, err = db.PrepareContext(ctx, listServerGroups); err != nil {
 		return nil, fmt.Errorf("error preparing query ListServerGroups: %w", err)
@@ -73,6 +82,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing completeServerRegistrationStmt: %w", cerr)
 		}
 	}
+	if q.createHttpUrlConfigStmt != nil {
+		if cerr := q.createHttpUrlConfigStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createHttpUrlConfigStmt: %w", cerr)
+		}
+	}
 	if q.createServerStmt != nil {
 		if cerr := q.createServerStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createServerStmt: %w", cerr)
@@ -93,6 +107,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteServerGroupStmt: %w", cerr)
 		}
 	}
+	if q.getHttpUrlConfigByIdStmt != nil {
+		if cerr := q.getHttpUrlConfigByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getHttpUrlConfigByIdStmt: %w", cerr)
+		}
+	}
 	if q.getOneTimeTokenForServerRegistrationStmt != nil {
 		if cerr := q.getOneTimeTokenForServerRegistrationStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getOneTimeTokenForServerRegistrationStmt: %w", cerr)
@@ -111,6 +130,11 @@ func (q *Queries) Close() error {
 	if q.getServerPortStmt != nil {
 		if cerr := q.getServerPortStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getServerPortStmt: %w", cerr)
+		}
+	}
+	if q.listHttpUrlConfigsStmt != nil {
+		if cerr := q.listHttpUrlConfigsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listHttpUrlConfigsStmt: %w", cerr)
 		}
 	}
 	if q.listServerGroupsStmt != nil {
@@ -173,14 +197,17 @@ type Queries struct {
 	db                                          DBTX
 	tx                                          *sql.Tx
 	completeServerRegistrationStmt              *sql.Stmt
+	createHttpUrlConfigStmt                     *sql.Stmt
 	createServerStmt                            *sql.Stmt
 	createServerGroupStmt                       *sql.Stmt
 	createServerPortStmt                        *sql.Stmt
 	deleteServerGroupStmt                       *sql.Stmt
+	getHttpUrlConfigByIdStmt                    *sql.Stmt
 	getOneTimeTokenForServerRegistrationStmt    *sql.Stmt
 	getServerByGidSidStmt                       *sql.Stmt
 	getServerGroupStmt                          *sql.Stmt
 	getServerPortStmt                           *sql.Stmt
+	listHttpUrlConfigsStmt                      *sql.Stmt
 	listServerGroupsStmt                        *sql.Stmt
 	listServerPortsStmt                         *sql.Stmt
 	listServersByGroupStmt                      *sql.Stmt
@@ -192,14 +219,17 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                                       tx,
 		tx:                                       tx,
 		completeServerRegistrationStmt:           q.completeServerRegistrationStmt,
+		createHttpUrlConfigStmt:                  q.createHttpUrlConfigStmt,
 		createServerStmt:                         q.createServerStmt,
 		createServerGroupStmt:                    q.createServerGroupStmt,
 		createServerPortStmt:                     q.createServerPortStmt,
 		deleteServerGroupStmt:                    q.deleteServerGroupStmt,
+		getHttpUrlConfigByIdStmt:                 q.getHttpUrlConfigByIdStmt,
 		getOneTimeTokenForServerRegistrationStmt: q.getOneTimeTokenForServerRegistrationStmt,
 		getServerByGidSidStmt:                    q.getServerByGidSidStmt,
 		getServerGroupStmt:                       q.getServerGroupStmt,
 		getServerPortStmt:                        q.getServerPortStmt,
+		listHttpUrlConfigsStmt:                   q.listHttpUrlConfigsStmt,
 		listServerGroupsStmt:                     q.listServerGroupsStmt,
 		listServerPortsStmt:                      q.listServerPortsStmt,
 		listServersByGroupStmt:                   q.listServersByGroupStmt,

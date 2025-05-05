@@ -4,6 +4,33 @@
 
 package repo
 
+type HttpMonitConfig struct {
+	EncodedUrl         string  `json:"encoded_url"`
+	Url                string  `json:"url"`
+	FriendlyName       string  `json:"friendly_name"`
+	Interval           int64   `json:"interval"`
+	Retries            int64   `json:"retries"`
+	Timeout            int64   `json:"timeout"`
+	UpsideDown         bool    `json:"upside_down"`
+	MaxRedirects       int64   `json:"max_redirects"`
+	Method             string  `json:"method"`
+	AcceptedCodes      string  `json:"accepted_codes"`
+	BodyEncoding       string  `json:"body_encoding"`
+	Body               *string `json:"body"`
+	Headers            *string `json:"headers"`
+	AuthenticationMode *string `json:"authentication_mode"`
+	ExpectedResponse   string  `json:"expected_response"`
+}
+
+type HttpMonitDatum struct {
+	Url          string  `json:"url"`
+	Timestamp    int64   `json:"timestamp"`
+	Up           bool    `json:"up"`
+	StatusCode   *int64  `json:"status_code"`
+	ResponseTime *int64  `json:"response_time"`
+	ResponseBody *string `json:"response_body"`
+}
+
 type Server struct {
 	ID                 string  `json:"id"`
 	GroupID            int64   `json:"group_id"`

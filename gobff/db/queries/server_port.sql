@@ -48,3 +48,16 @@ UPDATE servers SET reg_status = 'ACTIVE', agent_version = ?, mac = ? WHERE id = 
 
 -- name: GetOneTimeTokenForServerRegistration :one
 SELECT one_time_token FROM servers WHERE id = ?;
+
+-- name: CreateHttpUrlConfig :one
+INSERT INTO http_monit_configs
+    (url, friendly_name, interval, retries, timeout, upside_down, max_redirects, method, accepted_codes, body_encoding, body, headers, authentication_mode, expected_response)
+VALUES
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING *;
+
+-- name: GetHttpUrlConfigById :one
+SELECT * FROM http_monit_configs WHERE encoded_url = ?;
+
+-- name: ListHttpUrlConfigs :many
+SELECT * FROM http_monit_configs LIMIT ? OFFSET ?;

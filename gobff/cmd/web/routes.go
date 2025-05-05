@@ -43,5 +43,16 @@ func (app *application) routes() http.Handler {
 
 	// END: server groups routes
 
+	// START: http url config and monitoring routes
+	// ADD new http url for monitoring
+	mux.HandleFunc("POST /api/v1/http-url", httpReqLogger()(app, app.createHttpUrl))
+
+	// Get http url config by id
+	mux.HandleFunc("GET /api/v1/http-url/{baseid}", httpReqLogger()(app, app.getUrlConfigByBaseId))
+
+	// List all http url configs
+	mux.HandleFunc("GET /api/v1/http-url", httpReqLogger()(app, app.listHttpUrlConfigs))
+	// END: http url config and monitoring routes
+
 	return mux
 }

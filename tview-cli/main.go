@@ -9,7 +9,7 @@ import (
 var App *m.AppHolder
 
 func main() {
-	App = g.NewApp("nats://localhost:4222")
+	App = g.NewApp("nats://107.155.65.50:4222")
 	defer App.NC.Close()
 	sgDC := make(chan []*sg.ServerGroup)
 	go sg.GetAllServerGroupsSvc(sgDC)

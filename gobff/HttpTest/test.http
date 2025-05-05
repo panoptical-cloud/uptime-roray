@@ -66,3 +66,30 @@ Content-Type: application/json
 {
     "hostname":"goide.roray.dev"
 }
+
+### Create new HTTP URL config
+POST {{baseUrl}}/api/v1/http-url
+Content-Type: application/json
+
+{
+    "url":"https://google.com",
+    "friendly_name":"Google",
+    "interval":30,
+    "retries":3,
+    "timeout":5,
+    "upside_down":false,
+    "max-redirects":5,
+    "method": "GET",
+    "accepted_codes": "[200, 201]",
+    "body_encoding": "utf-8",
+    "body": "hello world",
+    "expected_response": "hello world",
+}
+
+### Get http url config by base64 id
+GET {{baseUrl}}/api/v1/http-url/MTIzNDU2Nzg5MA==
+Content-Type: application/json
+
+### List all http url configs
+GET {{baseUrl}}/api/v1/http-url?page=0
+Content-Type: application/json
